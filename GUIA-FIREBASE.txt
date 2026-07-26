@@ -1,0 +1,103 @@
+========================================
+   GUIA DE CONFIGURAÇÃO DO FIREBASE
+========================================
+
+1. CRIAR CONTA NO FIREBASE
+   - Acesse: https://console.firebase.google.com
+   - Faça login com sua conta Google
+   - Clique em "Criar projeto"
+   - Dê o nome: "flor-cestas-pedidos"
+   - Desative o Google Analytics (opcional)
+   - Clique em "Criar projeto"
+
+2. HABILITAR BANCO DE DADOS
+   - No painel, clique em "Realtime Database"
+   - Clique em "Criar banco de dados"
+   - Escolha "Estados Unidos" (mais rápido)
+   - Clique em "Ativar"
+   - Na aba "Regras", cole:
+   
+   {
+     "rules": {
+       ".read": true,
+       ".write": true
+     }
+   }
+   
+   - Clique em "Publicar"
+   
+   IMPORTANTE: Essas regras são para teste.
+   Depois, mude para regras mais seguras.
+
+3. OBTER CHAVES DE ACESSO
+   - Clique no ícone de engrenagem ⚙️
+   - Clique em "Configurações do projeto"
+   - Role para baixo até "Seus apps"
+   - Clique no ícone "</>" (Web)
+   - Dê o nome: "Flor e Cestas"
+   - Clique em "Registrar app"
+   - Copie o objeto "firebaseConfig"
+
+4. COLE AS CHAVES NO APP
+   - Abra o arquivo "app-pedidos.html"
+   - Procure a seção "CONFIGURAÇÃO DO FIREBASE"
+   - Substitua os valores pelas suas chaves:
+
+   const firebaseConfig = {
+       apiKey: "SUA_API_KEY_AQUI",
+       authDomain: "seu-projeto.firebaseapp.com",
+       databaseURL: "https://seu-projeto-default-rtdb.firebaseio.com",
+       projectId: "seu-projeto",
+       storageBucket: "seu-projeto.appspot.com",
+       messagingSenderId: "SEU_SENDER_ID",
+       appId: "SEU_APP_ID"
+   };
+
+5. HOSPAR O SITE
+   Opção A: GitHub Pages (Gratuito)
+   - Crie conta no GitHub
+   - Crie um repositório
+   - Suba os arquivos
+   - Ative GitHub Pages nas configurações
+
+   Opção B: Netlify (Gratuito)
+   - Acesse netlify.com
+   - Arraste a pasta com os arquivos
+   - Pronto! Recebe um link automático
+
+6. INSTALAR NO IPHONE
+   - Abra o link no Safari
+   - Toque no ícone de compartilhar
+   - Toque em "Adicionar à Tela de Início"
+   - Pronto! Funciona como um app
+
+========================================
+   REGRAS DE SEGURANÇA (DEPOIS)
+========================================
+
+Quando estiver funcionando, mude as regras
+do Firebase para:
+
+{
+  "rules": {
+    "orders": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "products": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "clients": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "finance": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}
+
+E adicione autenticação Firebase (login
+por email/senha ou Google).

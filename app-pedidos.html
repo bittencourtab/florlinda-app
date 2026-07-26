@@ -1,0 +1,2363 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Florlinda - Arranjos e Cestas</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-title" content="Florlinda">
+    <meta name="theme-color" content="#E8A5A0">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #E8A5A0;
+            --primary-dark: #C47878;
+            --primary-light: #FFF0ED;
+            --secondary: #A8D5D0;
+            --accent: #F0C4C0;
+            --bg: #FFF8F5;
+            --card: #FFFFFF;
+            --text: #5A3D3A;
+            --text-light: #A07068;
+            --success: #7CB342;
+            --warning: #FFB74D;
+            --danger: #E57373;
+            --shadow: 0 2px 12px rgba(232,165,160,0.15);
+            --radius: 16px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(232,165,160,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header img {
+            height: 120px;
+            max-width: 200px;
+            object-fit: contain;
+            margin-bottom: 4px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,.18));
+            border-radius: 50%;
+        }
+
+        .header p {
+            font-size: 0.75em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .page {
+            display: none;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            z-index: 100;
+            border-top: 1px solid #eee;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px 12px;
+            border: none;
+            background: none;
+            color: var(--text-light);
+            font-size: 0.65em;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 12px;
+            min-width: 60px;
+        }
+
+        .nav-item.active {
+            color: var(--primary-dark);
+            background: var(--primary-light);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .card-title {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 16px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .stat-label {
+            font-size: 0.75em;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(212,165,116,0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #7CB342, #558B2F);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #E57373, #C62828);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary-dark);
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E8E0D8;
+            border-radius: 12px;
+            font-size: 0.95em;
+            background: var(--card);
+            color: var(--text);
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.1em;
+            color: var(--primary-dark);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: #f0f0f0;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .order-info h3 {
+            font-size: 0.95em;
+            font-weight: 600;
+        }
+
+        .order-info p {
+            font-size: 0.8em;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        .order-value {
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .badge-done {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .badge-route {
+            background: #E8F5E9;
+            color: #128C7E;
+            border: 1px solid #25D366;
+        }
+
+        .badge-delivered {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .badge-cancelled {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .product-card {
+            background: var(--card);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .product-card:active {
+            transform: scale(0.97);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+        }
+
+        .product-info {
+            padding: 10px;
+        }
+
+        .product-info h3 {
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .product-info p {
+            font-size: 0.8em;
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            font-size: 1.8em;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(212,165,116,0.5);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #E8E0D8;
+            border-radius: 12px;
+            font-size: 0.9em;
+            background: var(--card);
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid #E8E0D8;
+            background: var(--card);
+            font-size: 0.8em;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .finance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0ebe5;
+        }
+
+        .finance-row:last-child {
+            border-bottom: none;
+        }
+
+        .finance-label {
+            font-size: 0.9em;
+        }
+
+        .finance-value {
+            font-weight: 700;
+            font-size: 0.95em;
+        }
+
+        .finance-income {
+            color: var(--success);
+        }
+
+        .finance-expense {
+            color: var(--danger);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.4;
+            margin-bottom: 16px;
+        }
+
+        .photo-upload {
+            width: 100%;
+            height: 120px;
+            border: 2px dashed #E8E0D8;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 0.85em;
+            gap: 8px;
+        }
+
+        .photo-upload svg {
+            width: 32px;
+            height: 32px;
+            opacity: 0.5;
+        }
+
+        .stock-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 8px;
+            font-size: 0.7em;
+            font-weight: 600;
+        }
+
+        .stock-ok {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .stock-low {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .stock-out {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="img/logo.png" alt="Florlinda" style="height:120px; margin-bottom:4px; object-fit:contain;">
+        <p>Arranjos e Cestas</p>
+        <div style="margin-top:10px; display:flex; justify-content:center; gap:16px; font-size:0.8em; opacity:0.95;">
+            <a href="https://wa.me/5548996725990" target="_blank" style="color:white; text-decoration:none; display:flex; align-items:center; gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                (48) 99672-5990
+            </a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" style="color:white; text-decoration:none; display:flex; align-items:center; gap:4px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                @florlindaarranjosecestas
+            </a>
+        </div>
+    </div>
+
+    <!-- PÁGINA INICIAL -->
+    <div class="page active" id="page-home">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="stat-orders">0</div>
+                <div class="stat-label">Pedidos Hoje</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-month">R$ 0</div>
+                <div class="stat-label">Faturamento Mês</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-pending">0</div>
+                <div class="stat-label">Pendentes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="stat-clients">0</div>
+                <div class="stat-label">Clientes</div>
+            </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px;">
+            <div class="stat-card" style="background: linear-gradient(135deg, #f6d365, #fda085); padding: 10px;">
+                <div class="stat-value" id="stat-waiting-payment" style="font-size: 1.5em;">0</div>
+                <div class="stat-label" style="font-size: 0.7em;">Aguardando Pgto</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #a8edea, #fed6e3); padding: 10px;">
+                <div class="stat-value" id="stat-sent-driver" style="font-size: 1.5em;">0</div>
+                <div class="stat-label" style="font-size: 0.7em;">Enviados Entregador</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #84fab0, #8fd3f4); padding: 10px;">
+                <div class="stat-value" id="stat-delivered-today" style="font-size: 1.5em;">0</div>
+                <div class="stat-label" style="font-size: 0.7em;">Entregues Hoje</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Pedidos Recentes</div>
+            <div id="recent-orders-home"></div>
+        </div>
+
+        <button class="btn btn-primary" onclick="showModal('new-order')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo Pedido
+        </button>
+    </div>
+
+    <!-- PÁGINA DE PEDIDOS -->
+    <div class="page" id="page-orders">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar pedido..." id="search-orders" oninput="filterOrders()">
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="filterByStatus('all', this)">Todos</button>
+            <button class="tab" onclick="filterByStatus('pending', this)">Pendentes</button>
+            <button class="tab" onclick="filterByStatus('done', this)">Prontos</button>
+            <button class="tab" onclick="filterByStatus('delivered', this)">Entregues</button>
+            <button class="tab" onclick="filterByStatus('cancelled', this)">Cancelados</button>
+        </div>
+
+        <div id="orders-list"></div>
+
+        <button class="fab" onclick="showModal('new-order')">+</button>
+    </div>
+
+    <!-- PÁGINA DE PRODUTOS -->
+    <div class="page" id="page-products">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar produto..." id="search-products" oninput="filterProducts()">
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="filterProductCategory('all', this)">Todos</button>
+            <button class="tab" onclick="filterProductCategory('cesta', this)">Cestas</button>
+            <button class="tab" onclick="filterProductCategory('box_flores', this)">Box de Flores</button>
+            <button class="tab" onclick="filterProductCategory('box', this)">Caixa Box</button>
+            <button class="tab" onclick="filterProductCategory('envelope', this)">Envelope</button>
+            <button class="tab" onclick="filterProductCategory('combo', this)">Combos</button>
+        </div>
+
+        <div class="product-grid" id="products-grid"></div>
+
+        <button class="fab" onclick="showModal('new-product')">+</button>
+    </div>
+
+    <!-- PÁGINA DE CLIENTES -->
+    <div class="page" id="page-clients">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="search-bar">
+            <input type="text" placeholder="Buscar cliente..." id="search-clients" oninput="filterClients()">
+        </div>
+
+        <div id="clients-list"></div>
+
+        <button class="fab" onclick="showModal('new-client')">+</button>
+    </div>
+
+    <!-- PÁGINA FINANCEIRO -->
+    <div class="page" id="page-finance">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value finance-income" id="fin-income">R$ 0</div>
+                <div class="stat-label">Entradas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value finance-expense" id="fin-expense">R$ 0</div>
+                <div class="stat-label">Saídas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="fin-balance" style="color: var(--primary-dark)">R$ 0</div>
+                <div class="stat-label">Saldo</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="filterFinance('all', this)">Todos</button>
+            <button class="tab" onclick="filterFinance('income', this)">Entradas</button>
+            <button class="tab" onclick="filterFinance('expense', this)">Saídas</button>
+            <button class="tab" onclick="filterFinance('frete', this)">Fretes</button>
+        </div>
+
+        <div id="frete-summary"></div>
+
+        <div class="card">
+            <div class="card-title">Últimas Movimentações</div>
+            <div id="finance-list"></div>
+        </div>
+
+        <button class="fab" onclick="showModal('new-finance')">+</button>
+    </div>
+
+    <!-- PÁGINA DE ENTREGAS -->
+    <div class="page" id="page-deliveries">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="tabs">
+            <button class="tab active" onclick="filterDeliveryDate('today', this)">Hoje</button>
+            <button class="tab" onclick="filterDeliveryDate('all', this)">Todas</button>
+            <button class="tab" onclick="showPage('drivers', document.querySelectorAll('.nav-item')[3])">Entregadores</button>
+        </div>
+
+        <div id="deliveries-list"></div>
+
+        <button class="fab" onclick="showModal('new-delivery')">+</button>
+    </div>
+
+    <!-- PÁGINA DE ENTREGADORES -->
+    <div class="page" id="page-drivers">
+        <button class="btn btn-outline" onclick="showPage('home', document.querySelector('.nav-item'))" style="margin-bottom:12px; font-size:0.85em;">
+            ← Voltar ao Início
+        </button>
+        <div class="card">
+            <div class="card-title">Entregadores Cadastrados</div>
+            <div id="drivers-list"></div>
+        </div>
+        <button class="btn btn-primary" onclick="showModal('new-driver')" style="margin-top:12px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Novo Entregador
+        </button>
+    </div>
+
+    <!-- NAVEGAÇÃO -->
+    <nav class="nav">
+        <button class="nav-item active" onclick="showPage('home', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+            Início
+        </button>
+        <button class="nav-item" onclick="showPage('orders', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Pedidos
+        </button>
+        <button class="nav-item" onclick="showPage('products', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            Produtos
+        </button>
+        <button class="nav-item" onclick="showPage('clients', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Clientes
+        </button>
+        <button class="nav-item" onclick="showPage('deliveries', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16,8 20,8 23,11 23,16 16,16"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Entregas
+        </button>
+        <button class="nav-item" onclick="showPage('finance', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Financeiro
+        </button>
+    </nav>
+
+    <!-- MODAL: NOVO PEDIDO -->
+    <div class="modal" id="modal-new-order">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Pedido</h2>
+                <button class="modal-close" onclick="closeModal('new-order')">&times;</button>
+            </div>
+            <form onsubmit="saveOrder(event)">
+                <div class="form-group">
+                    <label>Cliente</label>
+                    <select id="order-client" onchange="toggleManualClient()"></select>
+                </div>
+                <div class="form-group" id="manual-client-group" style="display:none;">
+                    <label>Nome do Cliente</label>
+                    <input type="text" id="order-manual-client" placeholder="Nome completo do cliente">
+                </div>
+                <div class="form-group">
+                    <label>Produto</label>
+                    <select id="order-product" required onchange="updateOrderPrice()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="order-qty" value="1" min="1" required onchange="updateOrderPrice()">
+                </div>
+                <div class="form-group">
+                    <label>Valor Total (R$) - Podes alterar</label>
+                    <input type="number" id="order-value" step="0.01" required>
+                    <small style="color:var(--text-light); font-size:0.75em;">Toca para alterar o valor automático</small>
+                </div>
+                <div class="form-group">
+                    <label>Valor da Entrega (R$)</label>
+                    <input type="number" id="order-delivery-value" step="0.01" value="0">
+                    <small style="color:var(--text-light); font-size:0.75em;">Taxa de entrega (opcional)</small>
+                </div>
+                <div class="form-group">
+                    <label>Data de Entrega</label>
+                    <input type="date" id="order-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Horário preferido</label>
+                    <select id="order-time">
+                        <option value="05:00">05:00</option>
+                        <option value="05:30">05:30</option>
+                        <option value="06:00">06:00</option>
+                        <option value="06:30">06:30</option>
+                        <option value="07:00">07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Endereço de Entrega</label>
+                    <textarea id="order-address" rows="2" placeholder="Rua, número, bairro, cidade - UF"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Nome de quem vai receber</label>
+                    <input type="text" id="order-receiver-name" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label>Telefone de quem vai receber</label>
+                    <input type="tel" id="order-receiver-phone" placeholder="(00) 00000-0000">
+                </div>
+                <button type="button" class="btn btn-outline" onclick="openOrderMaps()" style="margin-bottom:12px; font-size:0.85em;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Ver no Google Maps
+                </button>
+                <div class="form-group">
+                    <label>Entregador</label>
+                    <select id="order-driver" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="order-notes" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Forma de Pagamento</label>
+                    <select id="order-payment">
+                        <option value="pix">PIX</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cartao">Cartão</option>
+                        <option value="transferencia">Transferência</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Pedido e Agendar Entrega</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVO PRODUTO -->
+    <div class="modal" id="modal-new-product">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Produto</h2>
+                <button class="modal-close" onclick="closeModal('new-product')">&times;</button>
+            </div>
+            <form onsubmit="saveProduct(event)">
+                <div class="form-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="product-category" required>
+                        <option value="cesta">Cesta</option>
+                        <option value="box_flores">Box de Flores</option>
+                        <option value="box">Caixa Box</option>
+                        <option value="envelope">Envelope</option>
+                        <option value="combo">Combo</option>
+                        <option value="acessorio">Acessório</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Preço (R$)</label>
+                    <input type="number" id="product-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="product-desc" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Emoji do Produto (opcional)</label>
+                    <input type="text" id="product-emoji" placeholder="Ex: 🌸 🎁 ☕" maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label>Estoque (opcional)</label>
+                    <input type="number" id="product-stock" value="0" min="0" placeholder="0 = sem controle">
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Produto</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVO CLIENTE -->
+    <div class="modal" id="modal-new-client">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Cliente</h2>
+                <button class="modal-close" onclick="closeModal('new-client')">&times;</button>
+            </div>
+            <form onsubmit="saveClient(event)">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="client-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone (WhatsApp)</label>
+                    <input type="tel" id="client-phone" placeholder="(00) 00000-0000" oninput="maskPhone(this)">
+                </div>
+                <div class="form-group">
+                    <label>Instagram</label>
+                    <input type="text" id="client-instagram" placeholder="@usuario">
+                </div>
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <textarea id="client-address" rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="client-notes" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVA MOVIMENTAÇÃO FINANCEIRA -->
+    <div class="modal" id="modal-new-finance">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Movimentação</h2>
+                <button class="modal-close" onclick="closeModal('new-finance')">&times;</button>
+            </div>
+            <form onsubmit="saveFinance(event)">
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="fin-type" required>
+                        <option value="income">Entrada (Receita)</option>
+                        <option value="expense">Saída (Despesa)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="fin-desc" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="fin-value" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Data</label>
+                    <input type="date" id="fin-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="fin-category">
+                        <option value="venda">Venda</option>
+                        <option value="material">Material</option>
+                        <option value="frete">Frete/Entrega</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVO ENTREGADOR -->
+    <div class="modal" id="modal-new-driver">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Entregador</h2>
+                <button class="modal-close" onclick="closeModal('new-driver')">&times;</button>
+            </div>
+            <form onsubmit="saveDriver(event)">
+                <div class="form-group">
+                    <label>Nome</label>
+                    <input type="text" id="driver-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone (WhatsApp)</label>
+                    <input type="tel" id="driver-phone" placeholder="(00) 00000-0000" oninput="maskPhone(this)">
+                </div>
+                <div class="form-group">
+                    <label>Veículo</label>
+                    <select id="driver-vehicle">
+                        <option value="moto">Moto</option>
+                        <option value="carro">Carro</option>
+                        <option value="bicicleta">Bicicleta</option>
+                        <option value="ape">Ape/Triciclo</option>
+                        <option value="pe">A pé</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Entregador</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: NOVA ENTREGA -->
+    <div class="modal" id="modal-new-delivery">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agendar Entrega</h2>
+                <button class="modal-close" onclick="closeModal('new-delivery')">&times;</button>
+            </div>
+            <form onsubmit="saveDelivery(event)">
+                <div class="form-group">
+                    <label>Pedido</label>
+                    <select id="delivery-order" required onchange="loadDeliveryAddress()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Entregador</label>
+                    <select id="delivery-driver" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Data da Entrega</label>
+                    <input type="date" id="delivery-date" required>
+                </div>
+                <div class="form-group">
+                    <label>Horário preferido</label>
+                    <select id="delivery-time">
+                        <option value="05:00">05:00</option>
+                        <option value="05:30">05:30</option>
+                        <option value="06:00">06:00</option>
+                        <option value="06:30">06:30</option>
+                        <option value="07:00">07:00</option>
+                        <option value="07:30">07:30</option>
+                        <option value="08:00">08:00</option>
+                        <option value="08:30">08:30</option>
+                        <option value="09:00">09:00</option>
+                        <option value="09:30">09:30</option>
+                        <option value="10:00">10:00</option>
+                        <option value="10:30">10:30</option>
+                        <option value="11:00">11:00</option>
+                        <option value="11:30">11:30</option>
+                        <option value="12:00">12:00</option>
+                        <option value="12:30">12:30</option>
+                        <option value="13:00">13:00</option>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="14:30">14:30</option>
+                        <option value="15:00">15:00</option>
+                        <option value="15:30">15:30</option>
+                        <option value="16:00">16:00</option>
+                        <option value="16:30">16:30</option>
+                        <option value="17:00">17:00</option>
+                        <option value="17:30">17:30</option>
+                        <option value="18:00">18:00</option>
+                        <option value="18:30">18:30</option>
+                        <option value="19:00">19:00</option>
+                        <option value="19:30">19:30</option>
+                        <option value="20:00">20:00</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Endereço completo</label>
+                    <textarea id="delivery-address" rows="2" placeholder="Rua, número, bairro, cidade - UF"></textarea>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="openMaps()" style="margin-bottom:12px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                    Abrir no Google Maps
+                </button>
+                <div class="form-group">
+                    <label>Observações</label>
+                    <textarea id="delivery-notes" rows="2" placeholder="Ex: Apartamento 102, portão azul..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Agendar Entrega</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DETALHES DO PEDIDO -->
+    <div class="modal" id="modal-order-detail">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Detalhes do Pedido</h2>
+                <button class="modal-close" onclick="closeModal('order-detail')">&times;</button>
+            </div>
+            <div id="order-detail-content"></div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURAÇÃO DO FIREBASE (substitua pelos seus dados)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCx5-kXjh2JKR3ws79sJ-2Fm5NMXvbXq8s",
+            authDomain: "florlinda-184ec.firebaseapp.com",
+            databaseURL: "https://florlinda-184ec-default-rtdb.firebaseio.com",
+            projectId: "florlinda-184ec",
+            storageBucket: "florlinda-184ec.firebasestorage.app",
+            messagingSenderId: "667525922025",
+            appId: "1:667525922025:web:c075c18ce185f24608c478"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // DADOS
+        let data = { orders: [], products: [], clients: [], finance: [], drivers: [], deliveries: [] };
+        let currentFilter = 'all';
+        let currentProductFilter = 'all';
+        let currentFinanceFilter = 'all';
+        let currentDeliveryDate = 'today';
+
+        // CARREGAR DADOS DO FIREBASE
+        function loadData() {
+            return Promise.all([
+                db.ref('orders').once('value'),
+                db.ref('products').once('value'),
+                db.ref('clients').once('value'),
+                db.ref('finance').once('value'),
+                db.ref('drivers').once('value'),
+                db.ref('deliveries').once('value')
+            ]).then(([ordersSnap, productsSnap, clientsSnap, financeSnap, driversSnap, deliveriesSnap]) => {
+                data.orders = ordersSnap.val() ? Object.values(ordersSnap.val()) : [];
+                data.products = productsSnap.val() ? Object.values(productsSnap.val()) : [];
+                data.clients = clientsSnap.val() ? Object.values(clientsSnap.val()) : [];
+                data.finance = financeSnap.val() ? Object.values(financeSnap.val()) : [];
+                data.drivers = driversSnap.val() ? Object.values(driversSnap.val()) : [];
+                data.deliveries = deliveriesSnap.val() ? Object.values(deliveriesSnap.val()) : [];
+                refreshAll();
+            });
+        }
+
+        // SALVAR NO FIREBASE
+        function save() {
+            db.ref('orders').set(data.orders);
+            db.ref('products').set(data.products);
+            db.ref('clients').set(data.clients);
+            db.ref('finance').set(data.finance);
+            db.ref('drivers').set(data.drivers);
+            db.ref('deliveries').set(data.deliveries);
+        }
+
+        // NAVEGAÇÃO
+        function showPage(page, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            btn.classList.add('active');
+            refreshAll();
+        }
+
+        // MODAIS
+        function showModal(name) {
+            document.getElementById('modal-' + name).classList.add('active');
+            if (name === 'new-order') populateOrderForm();
+            if (name === 'new-finance') document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
+            if (name === 'new-delivery') populateDeliveryForm();
+        }
+
+        function closeModal(name) {
+            document.getElementById('modal-' + name).classList.remove('active');
+        }
+
+        // PREENCHER FORMULÁRIO DE PEDIDO
+        function populateOrderForm() {
+            const clientSel = document.getElementById('order-client');
+            const prodSel = document.getElementById('order-product');
+            const driverSel = document.getElementById('order-driver');
+            const valueInput = document.getElementById('order-value');
+            clientSel.innerHTML = '<option value="manual">✍️ Digitar nome...</option>' + (data.clients.length ? data.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('') : '');
+            prodSel.innerHTML = data.products.length ? data.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.emoji || ''} ${p.name}</option>`).join('') : '<option value="">Cadastre um produto primeiro</option>';
+            driverSel.innerHTML = data.drivers.length
+                ? data.drivers.map(d => `<option value="${d.id}">${d.name} (${d.vehicle})</option>`).join('')
+                : '<option value="">Cadastre um entregador primeiro</option>';
+            document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+            valueInput.dataset.manual = '';
+            valueInput.addEventListener('input', function() { this.dataset.manual = '1'; });
+            document.getElementById('manual-client-group').style.display = 'none';
+            document.getElementById('order-receiver-name').value = '';
+            document.getElementById('order-receiver-phone').value = '';
+            updateOrderPrice();
+        }
+
+        function toggleManualClient() {
+            const sel = document.getElementById('order-client');
+            const manualGroup = document.getElementById('manual-client-group');
+            manualGroup.style.display = sel.value === 'manual' ? 'block' : 'none';
+        }
+
+        function openOrderMaps() {
+            const address = document.getElementById('order-address').value;
+            if (!address) {
+                alert('Digite o endereço primeiro!');
+                return;
+            }
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank');
+        }
+
+        function updateOrderPrice() {
+            const sel = document.getElementById('order-product');
+            const opt = sel.options[sel.selectedIndex];
+            const price = opt ? parseFloat(opt.dataset.price) || 0 : 0;
+            const qty = parseInt(document.getElementById('order-qty').value) || 1;
+            const input = document.getElementById('order-value');
+            if (!input.dataset.manual) {
+                input.value = (price * qty).toFixed(2);
+            }
+        }
+
+        function populateDeliveryForm() {
+            const orderSel = document.getElementById('delivery-order');
+            const driverSel = document.getElementById('delivery-driver');
+
+            const pendingOrders = data.orders.filter(o => {
+                if (o.status === 'cancelled') return false;
+                const hasDelivery = data.deliveries.some(d => d.orderId === o.id && d.status !== 'delivered');
+                return !hasDelivery;
+            });
+
+            orderSel.innerHTML = pendingOrders.length
+                ? pendingOrders.map(o => {
+                    const client = data.clients.find(c => c.id === o.clientId);
+                    return `<option value="${o.id}">${client ? client.name : 'Cliente'} - ${getProductName(o.productId)}</option>`;
+                }).join('')
+                : '<option value="">Todos os pedidos já têm entrega</option>';
+
+            driverSel.innerHTML = data.drivers.length
+                ? data.drivers.map(d => `<option value="${d.id}">${d.name} (${d.vehicle})</option>`).join('')
+                : '<option value="">Cadastre um entregador primeiro</option>';
+
+            document.getElementById('delivery-date').value = new Date().toISOString().split('T')[0];
+        }
+
+        // SALVAR DADOS
+        function saveOrder(e) {
+            e.preventDefault();
+            const driverId = parseInt(document.getElementById('order-driver').value);
+            let clientId = parseInt(document.getElementById('order-client').value);
+            const manualName = document.getElementById('order-manual-client').value;
+
+            if (isNaN(clientId) || document.getElementById('order-client').value === 'manual') {
+                if (!manualName.trim()) {
+                    alert('Digite o nome do cliente!');
+                    return;
+                }
+                const newClient = { id: Date.now(), name: manualName.trim(), phone: '', address: '' };
+                data.clients.push(newClient);
+                clientId = newClient.id;
+                save();
+            }
+
+            const order = {
+                id: Date.now(),
+                clientId: clientId,
+                productId: parseInt(document.getElementById('order-product').value),
+                qty: parseInt(document.getElementById('order-qty').value),
+                value: parseFloat(document.getElementById('order-value').value),
+                deliveryValue: parseFloat(document.getElementById('order-delivery-value').value) || 0,
+                receiverPhone: document.getElementById('order-receiver-phone').value,
+                receiverName: document.getElementById('order-receiver-name').value,
+                date: document.getElementById('order-date').value,
+                address: document.getElementById('order-address').value,
+                notes: document.getElementById('order-notes').value,
+                payment: document.getElementById('order-payment').value,
+                driverId: driverId,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            data.orders.push(order);
+
+            // Criar entrega automaticamente
+            const delivery = {
+                id: Date.now() + 2,
+                orderId: order.id,
+                driverId: driverId,
+                date: order.date,
+                time: document.getElementById('order-time').value,
+                address: order.address,
+                notes: order.notes,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            data.deliveries.push(delivery);
+
+            // Adicionar entrada financeira
+            data.finance.push({
+                id: Date.now() + 1,
+                type: 'income',
+                description: `Pedido - ${getClientName(order.clientId)}`,
+                value: order.value + (order.deliveryValue || 0),
+                date: order.date,
+                category: 'venda',
+                orderId: order.id
+            });
+
+            save();
+            closeModal('new-order');
+            e.target.reset();
+            refreshAll();
+            alert('Pedido salvo com sucesso!');
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const product = {
+                id: Date.now(),
+                name: document.getElementById('product-name').value,
+                category: document.getElementById('product-category').value,
+                price: parseFloat(document.getElementById('product-price').value),
+                description: document.getElementById('product-desc').value,
+                emoji: document.getElementById('product-emoji').value || '📦',
+                stock: parseInt(document.getElementById('product-stock').value) || 0
+            };
+            data.products.push(product);
+            save();
+            closeModal('new-product');
+            e.target.reset();
+            refreshAll();
+            alert('Produto salvo com sucesso!');
+        }
+
+        function saveClient(e) {
+            e.preventDefault();
+            const client = {
+                id: Date.now(),
+                name: document.getElementById('client-name').value,
+                phone: document.getElementById('client-phone').value,
+                instagram: document.getElementById('client-instagram').value,
+                address: document.getElementById('client-address').value,
+                notes: document.getElementById('client-notes').value,
+                createdAt: new Date().toISOString()
+            };
+            data.clients.push(client);
+            save();
+            closeModal('new-client');
+            e.target.reset();
+            refreshAll();
+            alert('Cliente salvo com sucesso!');
+        }
+
+        function saveFinance(e) {
+            e.preventDefault();
+            const fin = {
+                id: Date.now(),
+                type: document.getElementById('fin-type').value,
+                description: document.getElementById('fin-desc').value,
+                value: parseFloat(document.getElementById('fin-value').value),
+                date: document.getElementById('fin-date').value,
+                category: document.getElementById('fin-category').value
+            };
+            data.finance.push(fin);
+            save();
+            closeModal('new-finance');
+            e.target.reset();
+            refreshAll();
+        }
+
+        function saveDriver(e) {
+            e.preventDefault();
+            const driver = {
+                id: Date.now(),
+                name: document.getElementById('driver-name').value,
+                phone: document.getElementById('driver-phone').value,
+                vehicle: document.getElementById('driver-vehicle').value,
+                active: true
+            };
+            data.drivers.push(driver);
+            save();
+            closeModal('new-driver');
+            e.target.reset();
+            refreshAll();
+            alert('Entregador salvo com sucesso!');
+        }
+
+        function saveDelivery(e) {
+            e.preventDefault();
+            const delivery = {
+                id: Date.now(),
+                orderId: parseInt(document.getElementById('delivery-order').value),
+                driverId: parseInt(document.getElementById('delivery-driver').value),
+                date: document.getElementById('delivery-date').value,
+                time: document.getElementById('delivery-time').value,
+                address: document.getElementById('delivery-address').value,
+                notes: document.getElementById('delivery-notes').value,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            data.deliveries.push(delivery);
+            save();
+            closeModal('new-delivery');
+            e.target.reset();
+            refreshAll();
+            alert('Entrega agendada com sucesso!');
+        }
+
+        function loadDeliveryAddress() {
+            const orderId = parseInt(document.getElementById('delivery-order').value);
+            const order = data.orders.find(o => o.id === orderId);
+            if (order && order.address) {
+                document.getElementById('delivery-address').value = order.address;
+            }
+        }
+
+        function openMaps() {
+            const address = document.getElementById('delivery-address').value;
+            if (!address) {
+                alert('Digite o endereço primeiro!');
+                return;
+            }
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+            window.open(url, '_blank');
+        }
+
+        function generateRoute(driverId, date) {
+            const deliveries = data.deliveries.filter(d =>
+                d.driverId === driverId &&
+                d.date === date &&
+                d.status !== 'delivered' &&
+                d.status !== 'cancelled' &&
+                d.address
+            );
+
+            if (deliveries.length === 0) {
+                alert('Nenhuma entrega encontrada para este entregador nesta data!');
+                return;
+            }
+
+            if (deliveries.length === 1) {
+                const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(deliveries[0].address)}`;
+                window.open(url, '_blank');
+                return;
+            }
+
+            const addresses = deliveries.map(d => d.address);
+            const origin = encodeURIComponent(addresses[0]);
+            const destination = encodeURIComponent(addresses[addresses.length - 1]);
+            const waypoints = addresses.slice(1, -1).map(a => encodeURIComponent(a)).join('|');
+
+            let url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+            if (waypoints) url += `&waypoints=${waypoints}`;
+            url += '&travelmode=driving';
+
+            window.open(url, '_blank');
+        }
+
+        function sendBatchWhatsApp(driverId, date) {
+            const deliveries = data.deliveries.filter(d =>
+                d.driverId === driverId &&
+                d.date === date &&
+                d.status !== 'delivered' &&
+                d.status !== 'cancelled'
+            );
+
+            if (deliveries.length === 0) {
+                alert('Nenhuma entrega pendente para este entregador nesta data!');
+                return;
+            }
+
+            const driver = data.drivers.find(d => d.id === driverId);
+            if (!driver || !driver.phone) {
+                alert('Entregador sem telefone cadastrado!');
+                return;
+            }
+
+            let msg = `🚚 *Entregas Florlinda - ${formatDate(date)}*\n\n`;
+            msg += `📋 *Total: ${deliveries.length} entrega(s)*\n\n`;
+
+            deliveries.forEach((d, i) => {
+                const order = data.orders.find(o => o.id === d.orderId);
+                const client = order ? data.clients.find(c => c.id === order.clientId) : null;
+                const receiverName = order ? (order.receiverName || (client ? client.name : 'Cliente')) : 'Cliente';
+                msg += `*Entrega ${i + 1}:*\n`;
+                msg += `👤 ${receiverName}\n`;
+                msg += `📍 ${d.address || 'Sem endereço'}\n`;
+                msg += `⏰ ${d.time}\n`;
+                if (d.notes) msg += `📝 ${d.notes}\n`;
+                msg += '\n';
+            });
+
+            msg += `🔗 Rota: https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(deliveries[0].address || '')}&destination=${encodeURIComponent(deliveries[deliveries.length - 1].address || '')}&travelmode=driving`;
+
+            const url = `https://wa.me/55${driver.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        // HELPERS
+        function getClientName(id) {
+            const c = data.clients.find(cl => cl.id === id);
+            return c ? c.name : 'Desconhecido';
+        }
+
+        function getClientPhone(id) {
+            const c = data.clients.find(cl => cl.id === id);
+            if (!c || !c.phone) return '';
+            return c.phone.replace(/\D/g, '');
+        }
+
+        function getProductName(id) {
+            const p = data.products.find(pr => pr.id === id);
+            return p ? `${p.emoji || ''} ${p.name}` : 'Produto removido';
+        }
+
+        function formatCurrency(v) {
+            return 'R$ ' + v.toFixed(2).replace('.', ',');
+        }
+
+        function formatDate(d) {
+            const [y, m, day] = d.split('-');
+            return `${day}/${m}/${y}`;
+        }
+
+        function maskPhone(input) {
+            let v = input.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 6) {
+                v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+            } else if (v.length > 2) {
+                v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+            } else if (v.length > 0) {
+                v = `(${v}`;
+            }
+            input.value = v;
+        }
+
+        // ATUALIZAR TELAS
+        function refreshAll() {
+            refreshHome();
+            refreshOrders();
+            refreshProducts();
+            refreshClients();
+            refreshFinance();
+            refreshDeliveries();
+            refreshDrivers();
+        }
+
+        function refreshHome() {
+            const today = new Date().toISOString().split('T')[0];
+            const todayOrders = data.orders.filter(o => o.createdAt && o.createdAt.startsWith(today));
+            const monthStart = today.substring(0, 7);
+            const monthIncome = data.finance.filter(f => f.type === 'income' && f.date.startsWith(monthStart)).reduce((s, f) => s + f.value, 0);
+            const pending = data.orders.filter(o => o.status === 'pending');
+
+            const overdueCount = data.deliveries.filter(d => d.date < today && d.status !== 'delivered' && d.status !== 'cancelled').length;
+
+            document.getElementById('stat-orders').textContent = todayOrders.length;
+            document.getElementById('stat-month').textContent = formatCurrency(monthIncome);
+            document.getElementById('stat-pending').textContent = pending.length;
+            document.getElementById('stat-clients').textContent = data.clients.length;
+
+            const waitingPayment = data.orders.filter(o => o.status !== 'cancelled' && o.status !== 'delivered' && (!o.payment || o.payment === 'a definir')).length;
+            const deliveredToday = data.deliveries.filter(d => d.date === today && d.status === 'delivered').length;
+            const sentToDriver = data.deliveries.filter(d => d.date >= today && d.status === 'pending' && d.driverId > 0).length;
+
+            document.getElementById('stat-waiting-payment').textContent = waitingPayment;
+            document.getElementById('stat-sent-driver').textContent = sentToDriver;
+            document.getElementById('stat-delivered-today').textContent = deliveredToday;
+
+            const recentOrders = data.orders.filter(o => o.status !== 'cancelled' && o.status !== 'delivered').sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).slice(0, 5);
+            const container = document.getElementById('recent-orders-home');
+
+            const overdueHtml = overdueCount > 0 ? `<div style="background:linear-gradient(135deg,#ff6b6b,#ee5a24); color:white; padding:12px 16px; border-radius:12px; margin-bottom:16px; cursor:pointer;" onclick="showPage('deliveries', document.querySelectorAll('.nav-item')[4])">
+                🔔 <strong>${overdueCount} entrega(s) vencida(s)!</strong> Toque para resolver
+            </div>` : '';
+
+            if (recentOrders.length === 0) {
+                container.innerHTML = overdueHtml + '<div class="empty-state"><p>Nenhum pedido ativo</p></div>';
+            } else {
+                container.innerHTML = overdueHtml + recentOrders.map(o => {
+                    const delivery = data.deliveries.find(d => d.orderId === o.id);
+                    const driver = delivery ? data.drivers.find(d => d.id === delivery.driverId) : null;
+                    const deliveryStatus = delivery ? delivery.status : 'sem entrega';
+
+                    let statusBadges = '';
+
+                    if (o.payment && o.payment !== 'a definir') {
+                        const payLabel = o.payment === 'pix' ? '💰 PIX' : o.payment === 'dinheiro' ? '💵 Dinheiro' : o.payment === 'cartao' ? '💳 Cartão' : '🏦 Transferência';
+                        statusBadges += `<span style="background:#27ae60; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">${payLabel}</span>`;
+                    } else {
+                        statusBadges += `<span style="background:#f39c12; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">⏳ Pgto pendente</span>`;
+                    }
+
+                    if (driver) {
+                        if (deliveryStatus === 'delivered') {
+                            statusBadges += `<span style="background:#27ae60; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">✅ Entregue</span>`;
+                        } else if (deliveryStatus === 'in_route') {
+                            statusBadges += `<span style="background:#3498db; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">🚚 Em rota</span>`;
+                        } else {
+                            statusBadges += `<span style="background:#9b59b6; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">🚚 ${driver.name}</span>`;
+                        }
+                    } else {
+                        statusBadges += `<span style="background:#95a5a6; color:white; padding:2px 6px; border-radius:8px; font-size:0.65em; margin-left:4px;">👤 Sem entregador</span>`;
+                    }
+
+                    const statusLabel = o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : 'Entregue';
+
+                    return `<div class="order-item" onclick="showOrderDetail(${o.id})">
+                        <div class="order-info">
+                            <h3>${getClientName(o.clientId)}</h3>
+                            <p>${getProductName(o.productId)} • ${formatDate(o.date)} • ${formatCurrency(o.value)}</p>
+                            <div style="margin-top:4px;">${statusBadges}</div>
+                        </div>
+                        <span class="badge badge-${o.status}">${statusLabel}</span>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        function refreshOrders() {
+            const search = (document.getElementById('search-orders') && document.getElementById('search-orders').value || '').toLowerCase();
+            let filtered = data.orders.filter(o => {
+                const matchSearch = getClientName(o.clientId).toLowerCase().includes(search) || getProductName(o.productId).toLowerCase().includes(search);
+                const matchStatus = currentFilter === 'all' || o.status === currentFilter;
+                return matchSearch && matchStatus;
+            }).sort((a, b) => b.date.localeCompare(a.date));
+
+            const container = document.getElementById('orders-list');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhum pedido encontrado</p></div>';
+                return;
+            }
+            container.innerHTML = filtered.map(o => `
+                <div class="order-item" onclick="showOrderDetail(${o.id})">
+                    <div class="order-info">
+                        <h3>${getClientName(o.clientId)}</h3>
+                        <p>${getProductName(o.productId)} • ${formatDate(o.date)}</p>
+                        <span class="badge badge-${o.status}">${o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : o.status === 'cancelled' ? 'Cancelado' : 'Entregue'}</span>
+                    </div>
+                    <div style="text-align:right;">
+                        <div class="order-value">${formatCurrency(o.value)}</div>
+                        ${o.deliveryValue ? `<div style="font-size:0.7em; color:var(--text-light);">🚚 ${formatCurrency(o.deliveryValue)}</div>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function refreshProducts() {
+            const search = (document.getElementById('search-products') && document.getElementById('search-products').value || '').toLowerCase();
+            let filtered = data.products.filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search);
+                const matchCat = currentProductFilter === 'all' || p.category === currentProductFilter;
+                return matchSearch && matchCat;
+            });
+
+            const container = document.getElementById('products-grid');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>Nenhum produto encontrado</p></div>';
+                return;
+            }
+            container.innerHTML = filtered.map(p => {
+                const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+                return `
+                    <div class="product-card" onclick="editProductStock(${p.id})">
+                        <div class="product-img">${p.emoji || '📦'}</div>
+                        <div class="product-info">
+                            <h3>${p.name}</h3>
+                            <p>${formatCurrency(p.price)}</p>
+                            <span class="stock-badge ${stockClass}">Estoque: ${p.stock}</span>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteProduct(${p.id})" style="position:absolute; top:8px; right:8px; background:#ff6b6b; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:1em; display:flex; align-items:center; justify-content:center;">✕</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshClients() {
+            const search = (document.getElementById('search-clients') && document.getElementById('search-clients').value || '').toLowerCase();
+            let filtered = data.clients.filter(c => c.name.toLowerCase().includes(search) || (c.instagram || '').toLowerCase().includes(search));
+
+            const container = document.getElementById('clients-list');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhum cliente encontrado</p></div>';
+                return;
+            }
+            container.innerHTML = filtered.map(c => {
+                const orders = data.orders.filter(o => o.clientId === c.id);
+                const total = orders.reduce((s, o) => s + o.value, 0);
+                return `
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h3>${c.name}</h3>
+                            <p>${c.phone ? `📱 ${c.phone}` : ''} ${c.instagram ? `📷 ${c.instagram}` : ''}</p>
+                            <p>${orders.length} pedido(s) • ${formatCurrency(total)}</p>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            ${c.phone ? `<a href="https://wa.me/55${c.phone.replace(/\D/g, '')}" target="_blank" style="color:var(--success); text-decoration:none; font-size:1.5em;">💬</a>` : ''}
+                            <button onclick="event.stopPropagation(); deleteClient(${c.id})" style="background:#ff6b6b; color:white; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:1em; display:flex; align-items:center; justify-content:center;">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshFinance() {
+            let filtered = currentFinanceFilter === 'all' ? data.finance : data.finance.filter(f => f.type === currentFinanceFilter);
+
+            if (currentFinanceFilter === 'frete') {
+                filtered = data.finance.filter(f => f.category === 'frete');
+                renderFreteSummary();
+                renderFinanceList(filtered);
+                return;
+            }
+
+            document.getElementById('frete-summary').innerHTML = '';
+            filtered = filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+            const income = filtered.filter(f => f.type === 'income').reduce((s, f) => s + f.value, 0);
+            const expense = filtered.filter(f => f.type === 'expense').reduce((s, f) => s + f.value, 0);
+
+            document.getElementById('fin-income').textContent = formatCurrency(income);
+            document.getElementById('fin-expense').textContent = formatCurrency(expense);
+            document.getElementById('fin-balance').textContent = formatCurrency(income - expense);
+
+            renderFinanceList(filtered);
+        }
+
+        function renderFreteSummary() {
+            document.getElementById('fin-income').textContent = '';
+            document.getElementById('fin-expense').textContent = '';
+            document.getElementById('fin-balance').textContent = '';
+
+            const deliveriesWithOrder = data.deliveries.map(d => {
+                const order = data.orders.find(o => o.id === d.orderId);
+                const driver = data.drivers.find(dr => dr.id === d.driverId);
+                return { ...d, order, driver };
+            }).filter(d => d.order && d.order.deliveryValue > 0);
+
+            const byDriver = {};
+            deliveriesWithOrder.forEach(d => {
+                const dName = d.driver ? d.driver.name : 'Sem entregador';
+                if (!byDriver[dName]) byDriver[dName] = [];
+                byDriver[dName].push(d);
+            });
+
+            const container = document.getElementById('frete-summary');
+            if (Object.keys(byDriver).length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            for (const [driverName, deliveries] of Object.entries(byDriver)) {
+                const totalFrete = deliveries.reduce((s, d) => s + (d.order ? d.order.deliveryValue : 0), 0);
+                const freteEntry = data.finance.find(f => f.category === 'frete' && f.description.includes(driverName));
+                const paid = freteEntry ? true : false;
+
+                html += `<div class="card" style="margin-bottom:12px; border-left: 4px solid ${paid ? 'var(--success)' : 'var(--danger)'};">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <div class="card-title">🚚 ${driverName}</div>
+                            <div style="font-size:0.85em; color:var(--text-light);">${deliveries.length} entrega(s) • ${formatCurrency(totalFrete)}</div>
+                            <div style="font-size:0.75em; color:var(--text-light);">📅 ${deliveries.map(d => formatDate(d.date)).join(', ')}</div>
+                        </div>
+                        <div style="text-align:right;">
+                            <span style="font-size:0.8em; color:${paid ? 'var(--success)' : 'var(--danger)'}; font-weight:600;">${paid ? 'Pago ✓' : 'Pendente'}</span>
+                            ${!paid ? `<button onclick="payFrete('${driverName}', ${totalFrete})" class="btn btn-success" style="margin-top:6px; font-size:0.75em; padding:4px 10px;">Pagar</button>` : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function renderFinanceList(filtered) {
+            filtered = filtered.sort((a, b) => b.date.localeCompare(a.date));
+
+            const container = document.getElementById('finance-list');
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhuma movimentação</p></div>';
+                return;
+            }
+            container.innerHTML = filtered.slice(0, 20).map(f => `
+                <div class="finance-row">
+                    <div style="flex:1;">
+                        <div class="finance-label">${f.description}</div>
+                        <div style="font-size:0.75em;color:var(--text-light)">${formatDate(f.date)}</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="finance-value ${f.type === 'income' ? 'finance-income' : 'finance-expense'}">
+                            ${f.type === 'income' ? '+' : '-'} ${formatCurrency(f.value)}
+                        </div>
+                        <button onclick="deleteFinance(${f.id})" style="border:none; background:none; cursor:pointer; color:var(--danger); font-size:0.8em;">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function payFrete(driverName, total) {
+            if (confirm(`Marcar frete de ${driverName} como pago?\n\nValor: ${formatCurrency(total)}`)) {
+                data.finance.push({
+                    id: Date.now(),
+                    type: 'expense',
+                    description: `Frete - ${driverName}`,
+                    value: total,
+                    date: new Date().toISOString().split('T')[0],
+                    category: 'frete'
+                });
+                save();
+                refreshAll();
+            }
+        }
+
+        function refreshDeliveries() {
+            const today = new Date().toISOString().split('T')[0];
+            let filtered = data.deliveries;
+
+            if (currentDeliveryDate === 'today') {
+                filtered = filtered.filter(d => d.date === today);
+            }
+
+            filtered = filtered.filter(d => {
+                const order = data.orders.find(o => o.id === d.orderId);
+                return !order || order.status !== 'cancelled';
+            });
+
+            const overdue = filtered.filter(d => d.date < today && d.status !== 'delivered' && d.status !== 'cancelled');
+
+            filtered = filtered.sort((a, b) => a.date.localeCompare(b.date));
+
+            const container = document.getElementById('deliveries-list');
+
+            let alarmHtml = '';
+            if (overdue.length > 0) {
+                alarmHtml = `<div style="background:linear-gradient(135deg,#ff6b6b,#ee5a24); color:white; padding:14px 16px; border-radius:12px; margin-bottom:16px; cursor:pointer;" onclick="showOverdueDetails()">
+                    <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:1em;">
+                        🔔 ${overdue.length} ENTREGA(S) VENCIDA(S)!
+                    </div>
+                    <div style="font-size:0.8em; margin-top:4px; opacity:0.9;">Toque para ver e concluir ou reagendar</div>
+                </div>`;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = alarmHtml + '<div class="empty-state"><p>Nenhuma entrega agendada</p></div>';
+                return;
+            }
+
+            const groupedByDriver = {};
+            filtered.forEach(d => {
+                const driver = data.drivers.find(dr => dr.id === d.driverId);
+                const driverName = driver ? driver.name : 'Sem entregador';
+                if (!groupedByDriver[driverName]) groupedByDriver[driverName] = [];
+                groupedByDriver[driverName].push(d);
+            });
+
+            let html = alarmHtml;
+            for (const [driverName, deliveries] of Object.entries(groupedByDriver)) {
+                const driver = data.drivers.find(dr => dr.name === driverName);
+                const pendingDeliveries = deliveries.filter(d => d.status !== 'delivered' && d.status !== 'cancelled');
+                const mainDate = pendingDeliveries.length > 0 ? pendingDeliveries[0].date : deliveries[0].date;
+                const hasOverdue = deliveries.some(d => d.date < today && d.status !== 'delivered' && d.status !== 'cancelled');
+
+                html += `
+                    <div class="card" style="margin-bottom:16px; ${hasOverdue ? 'border-left:4px solid var(--danger);' : ''}">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                            <div>
+                                <div class="card-title" style="margin-bottom:2px;">🚚 ${driverName}</div>
+                                <div style="font-size:0.75em; color:var(--text-light);">${deliveries.length} entrega(s) • ${mainDate === today ? 'Hoje' : formatDate(mainDate)}</div>
+                            </div>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+                                ${driver && pendingDeliveries.length > 0 ? `<button class="btn btn-success" onclick="sendBatchWhatsApp(${driver.id}, '${mainDate}')" style="width:auto; padding:8px 12px; font-size:0.75em; background:linear-gradient(135deg, #25D366, #128C7E);">
+                                    📱 Enviar Tudo
+                                </button>` : ''}
+                                ${driver ? `<button class="btn btn-success" onclick="generateRoute(${driver.id}, '${mainDate}')" style="width:auto; padding:8px 12px; font-size:0.75em;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3,11 22,2 13,21 11,13 3,11"/></svg>
+                                    Rota
+                                </button>` : ''}
+                            </div>
+                        </div>
+                `;
+
+                deliveries.forEach(d => {
+                    const order = data.orders.find(o => o.id === d.orderId);
+                    const client = order ? data.clients.find(c => c.id === order.clientId) : null;
+                    const isOverdue = d.date < today && d.status !== 'delivered' && d.status !== 'cancelled';
+                    const statusClass = d.status === 'pending' ? 'badge-pending' : d.status === 'delivered' ? 'badge-delivered' : d.status === 'in_route' ? 'badge-route' : 'badge-done';
+                    const statusLabel = d.status === 'pending' ? (isOverdue ? '⚠️ Vencida' : 'Pendente') : d.status === 'delivered' ? 'Entregue' : d.status === 'in_route' ? '🚚 Em rota' : 'Concluído';
+
+                    html += `
+                        <div class="order-item" style="border-left-color: ${isOverdue ? 'var(--danger)' : 'var(--secondary)'};">
+                            <div class="order-info" style="flex:1;">
+                                <h3>${client ? client.name : 'Cliente'}</h3>
+                                <p style="font-size:0.75em; color:var(--text-light); margin:2px 0;">📍 ${d.address || 'Sem endereço'}</p>
+                                <p style="font-size:0.75em;">⏰ ${d.time} ${d.notes ? '• ' + d.notes : ''}</p>
+                                <span class="badge ${isOverdue ? 'badge-cancelled' : statusClass}">${statusLabel}</span>
+                            </div>
+                            <div style="display:flex; gap:6px; flex-direction:column; align-items:flex-end;">
+                                ${d.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.address)}" target="_blank" style="color:var(--primary-dark); text-decoration:none; font-size:0.75em;">📍 Maps</a>` : ''}
+                                ${isOverdue ? `
+                                    <button onclick="updateDeliveryStatus(${d.id}, 'delivered')" style="border:none; background:none; cursor:pointer; font-size:0.75em; color:var(--success);">✅ Concluir</button>
+                                    <button onclick="rescheduleDelivery(${d.id})" style="border:none; background:none; cursor:pointer; font-size:0.75em; color:var(--primary-dark);">📅 Reagendar</button>
+                                ` : `
+                                    <button onclick="updateDeliveryStatus(${d.id}, '${d.status === 'pending' ? 'delivered' : 'pending'}')" style="border:none; background:none; cursor:pointer; font-size:0.75em; color:var(--primary-dark);">${d.status === 'pending' ? '✅ Concluir' : d.status === 'in_route' ? '✅ Concluir' : '🔄 Reabrir'}</button>
+                                `}
+                                <button onclick="deleteDelivery(${d.id})" style="border:none; background:none; cursor:pointer; font-size:0.75em; color:var(--danger);">🗑️ Excluir</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function rescheduleDelivery(id) {
+            const delivery = data.deliveries.find(d => d.id === id);
+            if (!delivery) return;
+            const newDate = prompt('Nova data para a entrega (AAAA-MM-DD):', delivery.date);
+            if (newDate && /^\d{4}-\d{2}-\d{2}$/.test(newDate)) {
+                delivery.date = newDate;
+                delivery.status = 'pending';
+                save();
+                refreshAll();
+            } else if (newDate) {
+                alert('Formato inválido! Use AAAA-MM-DD');
+            }
+        }
+
+        function showOverdueDetails() {
+            const today = new Date().toISOString().split('T')[0];
+            const overdue = data.deliveries.filter(d => d.date < today && d.status !== 'delivered' && d.status !== 'cancelled');
+
+            let msg = '🔔 ENTREGAS VENCIDAS:\n\n';
+            overdue.forEach((d, i) => {
+                const order = data.orders.find(o => o.id === d.orderId);
+                const client = order ? data.clients.find(c => c.id === order.clientId) : null;
+                const driver = data.drivers.find(dr => dr.id === d.driverId);
+                msg += `${i + 1}. ${client ? client.name : 'Cliente'}\n`;
+                msg += `   📍 ${d.address || 'Sem endereço'}\n`;
+                msg += `   📅 ${formatDate(d.date)} às ${d.time}\n`;
+                msg += `   🚚 ${driver ? driver.name : 'Sem entregador'}\n\n`;
+            });
+            alert(msg);
+        }
+
+        function refreshDrivers() {
+            const container = document.getElementById('drivers-list');
+            if (data.drivers.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Nenhum entregador cadastrado</p></div>';
+                return;
+            }
+
+            const vehicleIcons = { moto: '🏍️', carro: '🚗', bicicleta: '🚲', ape: '🛺', pe: '🚶' };
+
+            container.innerHTML = data.drivers.map(d => {
+                const todayDeliveries = data.deliveries.filter(del => del.driverId === d.id && del.date === new Date().toISOString().split('T')[0]);
+                return `
+                    <div class="order-item">
+                        <div class="order-info">
+                            <h3>${vehicleIcons[d.vehicle] || '🚚'} ${d.name}</h3>
+                            <p>${d.phone || 'Sem telefone'}</p>
+                            <p>${todayDeliveries.length} entrega(s) hoje</p>
+                        </div>
+                        <div style="display:flex; gap:8px; align-items:center;">
+                            ${d.phone ? `<a href="https://wa.me/55${d.phone.replace(/\D/g, '')}" target="_blank" style="color:var(--success); text-decoration:none; font-size:1.5em;">💬</a>` : ''}
+                            <button onclick="deleteDriver(${d.id})" style="border:none; background:none; cursor:pointer; font-size:1.2em; color:var(--danger);">🗑️</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateDeliveryStatus(id, status) {
+            const delivery = data.deliveries.find(d => d.id === id);
+            if (delivery) {
+                delivery.status = status;
+                save();
+                refreshAll();
+            }
+        }
+
+        function deleteDelivery(id) {
+            if (confirm('Excluir esta entrega?')) {
+                data.deliveries = data.deliveries.filter(d => d.id !== id);
+                save();
+                refreshAll();
+            }
+        }
+
+        function deleteDriver(id) {
+            if (confirm('Excluir este entregador?')) {
+                data.drivers = data.drivers.filter(d => d.id !== id);
+                save();
+                refreshAll();
+            }
+        }
+
+        function deleteFinance(id) {
+            if (confirm('Excluir esta movimentação financeira?')) {
+                data.finance = data.finance.filter(f => f.id !== id);
+                save();
+                refreshAll();
+            }
+        }
+
+        function filterDeliveryDate(type, btn) {
+            currentDeliveryDate = type;
+            document.querySelectorAll('#page-deliveries .tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            refreshDeliveries();
+        }
+
+        // FILTROS
+        function filterOrders() { refreshOrders(); }
+        function filterByStatus(status, btn) {
+            currentFilter = status;
+            document.querySelectorAll('#page-orders .tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            refreshOrders();
+        }
+
+        function filterProducts() { refreshProducts(); }
+        function filterProductCategory(cat, btn) {
+            currentProductFilter = cat;
+            document.querySelectorAll('#page-products .tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            refreshProducts();
+        }
+
+        function filterFinance(type, btn) {
+            currentFinanceFilter = type;
+            document.querySelectorAll('#page-finance .tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            refreshFinance();
+        }
+
+        // DETALHES DO PEDIDO
+        function showOrderDetail(id) {
+            const o = data.orders.find(or => or.id === id);
+            if (!o) return;
+
+            const statusOptions = [
+                { value: 'pending', label: 'Pendente' },
+                { value: 'done', label: 'Pronto' },
+                { value: 'delivered', label: 'Entregue' },
+                { value: 'cancelled', label: 'Cancelado' }
+            ];
+
+            const driver = data.drivers.find(d => d.id === o.driverId);
+            const delivery = data.deliveries.find(d => d.orderId === o.id);
+
+            document.getElementById('order-detail-content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">Cliente</div>
+                    <p>${getClientName(o.clientId)}</p>
+                    ${o.clientId ? `<a href="https://wa.me/55${getClientPhone(o.clientId)}" target="_blank" style="color:var(--success); text-decoration:none; font-size:0.85em;">💬 WhatsApp cliente</a>` : ''}
+                </div>
+                <div class="card">
+                    <div class="card-title">Produto</div>
+                    <p>${getProductName(o.productId)}</p>
+                    <p>Qtd: ${o.qty} • ${formatCurrency(o.value)}</p>
+                    ${o.deliveryValue ? `<p style="font-size:0.85em; color:var(--text-light);">🚚 Entrega: ${formatCurrency(o.deliveryValue)}</p>` : ''}
+                </div>
+                <div class="card">
+                    <div class="card-title">Entrega</div>
+                    <p>📅 ${formatDate(o.date)}</p>
+                    <p>📍 ${o.address || 'Não informado'}</p>
+                    ${o.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}" target="_blank" style="color:var(--primary-dark); text-decoration:none; font-size:0.85em;">🗺️ Abrir no Google Maps</a>` : ''}
+                </div>
+                ${driver ? `
+                <div class="card">
+                    <div class="card-title">Entregador</div>
+                    <p>🚚 ${driver.name} (${driver.vehicle})</p>
+                    ${driver.phone ? `<a href="https://wa.me/55${driver.phone.replace(/\D/g, '')}" target="_blank" style="color:var(--success); text-decoration:none; font-size:0.85em;">💬 WhatsApp entregador</a>` : ''}
+                </div>
+                ` : ''}
+                <div class="card">
+                    <div class="card-title">Pagamento</div>
+                    <p>${o.payment === 'pix' ? 'PIX' : o.payment === 'dinheiro' ? 'Dinheiro' : o.payment === 'cartao' ? 'Cartão' : 'Transferência'}</p>
+                </div>
+                ${o.notes ? `<div class="card"><div class="card-title">Obs</div><p>${o.notes}</p></div>` : ''}
+                <div class="form-group">
+                    <label>Status</label>
+                    <select onchange="updateOrderStatus(${o.id}, this.value)">
+                        ${statusOptions.map(s => `<option value="${s.value}" ${o.status === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
+                    </select>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                    <a href="https://wa.me/55${getClientPhone(o.clientId)}?text=Olá! ${getClientName(o.clientId)}, seu pedido de ${getProductName(o.productId)} está ${o.status === 'pending' ? 'pendente' : o.status === 'done' ? 'pronto' : o.status === 'cancelled' ? 'cancelado' : 'entregue'}! 💐" target="_blank" class="btn btn-success" style="text-decoration:none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        Enviar WhatsApp ao Cliente
+                    </a>
+                    ${o.receiverPhone ? `
+                    <a href="https://wa.me/55${o.receiverPhone.replace(/\D/g, '')}?text=Olá! ${o.receiverName || 'Responsável'}, sua entrega da Florlinda está a caminho! 🚚💐" target="_blank" class="btn btn-success" style="text-decoration:none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        WhatsApp ao Recebedor
+                    </a>
+                    ` : ''}
+                    ${driver && driver.phone ? `
+                    <button onclick="confirmSendDriver(${o.id}, ${driver.id})" class="btn btn-success" style="background:linear-gradient(135deg, #25D366, #128C7E);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        Enviar WhatsApp ao Entregador
+                    </button>
+                    ` : ''}
+                    <button onclick="printProtocol(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #667eea, #764ba2); width:100%;">
+                        🖨️ Imprimir Protocolo
+                    </button>
+                </div>
+                <button class="btn btn-danger" onclick="deleteOrder(${o.id})" style="margin-top:10px">Excluir Pedido</button>
+            `;
+            showModal('order-detail');
+        }
+
+        function printProtocol(id) {
+            const o = data.orders.find(or => or.id === id);
+            if (!o) return;
+            const delivery = data.deliveries.find(d => d.orderId === o.id);
+            const driver = delivery ? data.drivers.find(d => d.id === delivery.driverId) : null;
+            const product = data.products.find(p => p.id === o.productId);
+            const client = data.clients.find(c => c.id === o.clientId);
+            const now = new Date();
+            const protocolNum = 'FL-' + String(o.id).padStart(5, '0');
+
+            const payLabel = o.payment === 'pix' ? 'PIX' : o.payment === 'dinheiro' ? 'Dinheiro' : o.payment === 'cartao' ? 'Cartão' : 'Transferência';
+            const statusLabel = o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : o.status === 'delivered' ? 'Entregue' : 'Cancelado';
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Protocolo ${protocolNum}</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body { font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; }
+                        .header { text-align: center; border-bottom: 2px solid #c9a0dc; padding-bottom: 15px; margin-bottom: 20px; }
+                        .header h1 { color: #9b59b6; font-size: 1.5em; }
+                        .header p { color: #666; font-size: 0.85em; margin-top: 4px; }
+                        .protocol-num { background: #9b59b6; color: white; padding: 6px 16px; border-radius: 20px; display: inline-block; font-weight: bold; margin: 10px 0; font-size: 1.1em; }
+                        .section { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; padding: 12px; }
+                        .section h3 { color: #9b59b6; font-size: 0.85em; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+                        .section p { font-size: 0.9em; line-height: 1.6; }
+                        .row { display: flex; justify-content: space-between; }
+                        .row span { font-size: 0.9em; }
+                        .total { text-align: center; margin: 20px 0; padding: 15px; background: #f8f4fc; border-radius: 8px; border: 2px solid #9b59b6; }
+                        .total h2 { color: #9b59b6; font-size: 1.8em; }
+                        .footer { text-align: center; margin-top: 20px; font-size: 0.75em; color: #999; border-top: 1px dashed #ddd; padding-top: 10px; }
+                        .status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: bold; }
+                        .status-pending { background: #fff3cd; color: #856404; }
+                        .status-done { background: #d4edda; color: #155724; }
+                        .status-delivered { background: #cce5ff; color: #004085; }
+                        .status-cancelled { background: #f8d7da; color: #721c24; }
+                        @media print { body { padding: 10px; } }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>FLORLINDA</h1>
+                        <p>Arranjos e Cestas Personalizadas</p>
+                        <p>(48) 99672-5990 | @florlindaarranjosecestas</p>
+                        <div class="protocol-num">${protocolNum}</div>
+                    </div>
+
+                    <div class="section">
+                        <h3>Cliente</h3>
+                        <p><strong>${getClientName(o.clientId)}</strong></p>
+                        ${client && client.phone ? `<p>📞 ${client.phone}</p>` : ''}
+                        ${o.receiverName ? `<p><strong>Recebedor:</strong> ${o.receiverName}${o.receiverPhone ? ` (${o.receiverPhone})` : ''}</p>` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h3>Pedido</h3>
+                        <p><strong>${getProductName(o.productId)}</strong></p>
+                        ${product && product.description ? `<p style="font-size:0.8em; color:#666;">${product.description}</p>` : ''}
+                        <div class="row" style="margin-top:8px;">
+                            <span>Quantidade: <strong>${o.qty}</strong></span>
+                            <span>Data: <strong>${formatDate(o.date)}</strong></span>
+                        </div>
+                        ${o.time ? `<p>Horário: <strong>${o.time}</strong></p>` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h3>Entrega</h3>
+                        <p>📍 ${o.address || 'Retirada no local'}</p>
+                        ${driver ? `<p>🚚 Entregador: <strong>${driver.name}</strong> (${driver.vehicle})</p>` : ''}
+                    </div>
+
+                    <div class="section">
+                        <h3>Pagamento</h3>
+                        <div class="row">
+                            <span>Forma: <strong>${payLabel}</strong></span>
+                            <span>Status: <span class="status status-${o.status}">${statusLabel}</span></span>
+                        </div>
+                    </div>
+
+                    <div class="total">
+                        <p style="font-size:0.9em; color:#666;">Valor Total</p>
+                        <h2>${o.deliveryValue ? formatCurrency(o.deliveryValue) : 'Grátis'}</h2>
+                    </div>
+
+                    ${o.notes ? `<div class="section"><h3>Observações</h3><p>${o.notes}</p></div>` : ''}
+
+                    <div class="footer">
+                        <p>Protocolo gerado em ${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR')}</p>
+                        <p>Florlinda - Arranjos e Cestas Personalizadas</p>
+                    </div>
+
+                    <script>window.onload = function() { window.print(); }</script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        function updateOrderStatus(id, status) {
+            const order = data.orders.find(o => o.id === id);
+            if (order) {
+                order.status = status;
+                if (status === 'cancelled') {
+                    data.deliveries = data.deliveries.filter(d => d.orderId !== id);
+                    data.finance = data.finance.filter(f => !(f.category === 'venda' && f.description && f.description.includes('Pedido') && f.orderId === id));
+                }
+                save();
+                refreshAll();
+            }
+        }
+
+        function deleteOrder(id) {
+            if (confirm('Excluir este pedido e sua entrada financeira?')) {
+                data.orders = data.orders.filter(o => o.id !== id);
+                data.deliveries = data.deliveries.filter(d => d.orderId !== id);
+                data.finance = data.finance.filter(f => !(f.category === 'venda' && f.description && f.description.includes('Pedido') && f.orderId === id));
+                save();
+                closeModal('order-detail');
+                refreshAll();
+            }
+        }
+
+        function deleteProduct(id) {
+            const product = data.products.find(p => p.id === id);
+            const ordersUsing = data.orders.filter(o => o.productId === id);
+            if (ordersUsing.length > 0) {
+                alert(`Não é possível excluir: ${ordersUsing.length} pedido(s) usam este produto.`);
+                return;
+            }
+            if (confirm(`Excluir o produto "${product.name}"?`)) {
+                data.products = data.products.filter(p => p.id !== id);
+                save();
+                refreshAll();
+            }
+        }
+
+        function deleteClient(id) {
+            const client = data.clients.find(c => c.id === id);
+            const ordersUsing = data.orders.filter(o => o.clientId === id);
+            if (ordersUsing.length > 0) {
+                alert(`Não é possível excluir: ${ordersUsing.length} pedido(s) deste cliente.`);
+                return;
+            }
+            if (confirm(`Excluir o cliente "${client.name}"?`)) {
+                data.clients = data.clients.filter(c => c.id !== id);
+                save();
+                refreshAll();
+            }
+        }
+
+        function confirmSendDriver(orderId, driverId) {
+            const o = data.orders.find(or => or.id === orderId);
+            const driver = data.drivers.find(d => d.id === driverId);
+            if (!o || !driver) return;
+
+            const client = data.clients.find(c => c.id === o.clientId);
+            const receiverName = o.receiverName || (client ? client.name : 'Cliente');
+            const msg = `🚚 *Nova Entrega Florlinda*\n\n👤 *Recebedor:* ${receiverName}\n📱 *Telefone:* ${o.receiverPhone || (client && client.phone) || 'Não informado'}\n\n📦 *Produto:* ${getProductName(o.productId)}\n\n📍 *Endereço:* ${o.address || 'Não informado'}\n📅 *Data:* ${formatDate(o.date)}\n⏰ *Horário:* ${o.time}${o.notes ? `\n\n📝 *Obs:* ${o.notes}` : ''}\n\n🔗 *Google Maps:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address || '')}`;
+
+            const confirmar = confirm(`Enviar para ${driver.name}?\n\n📱 ${driver.phone}\n\n👤 Recebedor: ${receiverName}\n📍 ${o.address || 'Sem endereço'}`);
+
+            if (confirmar) {
+                const delivery = data.deliveries.find(d => d.orderId === o.id);
+                if (delivery) {
+                    delivery.status = 'in_route';
+                    save();
+                }
+
+                const url = `https://wa.me/55${driver.phone.replace(/\D/g, '')}?text=${encodeURIComponent(msg)}`;
+                window.open(url, '_blank');
+
+                closeModal('order-detail');
+                refreshAll();
+
+                setTimeout(() => {
+                    alert('✅ Mensagem enviada ao entregador!\n\n📦 ' + (client ? client.name : 'Pedido') + '\n🚚 ' + driver.name);
+                }, 500);
+            }
+        }
+
+        // EDITAR ESTOQUE DO PRODUTO
+        function editProductStock(id) {
+            const p = data.products.find(pr => pr.id === id);
+            if (!p) return;
+            const newStock = prompt(`Estoque atual de "${p.name}": ${p.stock}\n\nNovo estoque:`, p.stock);
+            if (newStock !== null && !isNaN(parseInt(newStock))) {
+                p.stock = parseInt(newStock);
+                save();
+                refreshAll();
+            }
+        }
+
+        // FECHAR MODAL CLICANDO FORA
+        document.querySelectorAll('.modal').forEach(m => {
+            m.addEventListener('click', (e) => {
+                if (e.target === m) {
+                    m.classList.remove('active');
+                }
+            });
+        });
+
+        // INICIAR - CARREGAR DADOS DO FIREBASE
+        loadData().catch(err => {
+            console.error('Erro ao carregar dados:', err);
+            refreshAll();
+        });
+
+        // REGISTRAR SERVICE WORKER PARA PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>

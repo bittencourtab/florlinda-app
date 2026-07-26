@@ -946,6 +946,44 @@
         </div>
     </div>
 
+    <!-- MODAL: EDITAR PRODUTO -->
+    <div class="modal" id="modal-edit-product">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Produto</h2>
+                <button class="modal-close" onclick="closeModal('edit-product')">&times;</button>
+            </div>
+            <form onsubmit="saveEditProduct(event)">
+                <input type="hidden" id="edit-product-id">
+                <div class="form-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="edit-product-name" required>
+                </div>
+                <div class="form-group">
+                    <label>Preço (R$)</label>
+                    <input type="number" id="edit-product-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Emoji</label>
+                    <input type="text" id="edit-product-emoji" maxlength="4">
+                </div>
+                <div class="form-group">
+                    <label>URL da Foto</label>
+                    <input type="url" id="edit-product-image" placeholder="https://exemplo.com/foto.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Estoque</label>
+                    <input type="number" id="edit-product-stock" min="0">
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="edit-product-desc" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL: NOVO CLIENTE -->
     <div class="modal" id="modal-new-client">
         <div class="modal-content">
@@ -2391,12 +2429,30 @@
         function editProductStock(id) {
             const p = data.products.find(pr => pr.id === id);
             if (!p) return;
-            const newStock = prompt(`Estoque atual de "${p.name}": ${p.stock}\n\nNovo estoque:`, p.stock);
-            if (newStock !== null && !isNaN(parseInt(newStock))) {
-                p.stock = parseInt(newStock);
-                save();
-                refreshAll();
-            }
+            document.getElementById('edit-product-id').value = p.id;
+            document.getElementById('edit-product-name').value = p.name;
+            document.getElementById('edit-product-price').value = p.price;
+            document.getElementById('edit-product-emoji').value = p.emoji || '';
+            document.getElementById('edit-product-image').value = p.image || '';
+            document.getElementById('edit-product-stock').value = p.stock || 0;
+            document.getElementById('edit-product-desc').value = p.description || '';
+            showModal('edit-product');
+        }
+
+        function saveEditProduct(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('edit-product-id').value);
+            const p = data.products.find(pr => pr.id === id);
+            if (!p) return;
+            p.name = document.getElementById('edit-product-name').value;
+            p.price = parseFloat(document.getElementById('edit-product-price').value);
+            p.emoji = document.getElementById('edit-product-emoji').value || '📦';
+            p.image = document.getElementById('edit-product-image').value || '';
+            p.stock = parseInt(document.getElementById('edit-product-stock').value) || 0;
+            p.description = document.getElementById('edit-product-desc').value;
+            save();
+            closeModal('edit-product');
+            refreshAll();
         }
 
         // FECHAR MODAL CLICANDO FORA

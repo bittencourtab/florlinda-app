@@ -934,8 +934,9 @@
                     <input type="text" id="product-emoji" placeholder="Ex: 🌸 🎁 ☕" maxlength="4">
                 </div>
                 <div class="form-group">
-                    <label>URL da Foto (opcional)</label>
-                    <input type="url" id="product-image" placeholder="https://exemplo.com/foto.jpg">
+                    <label>Foto do Produto</label>
+                    <input type="file" id="product-image" accept="image/*" onchange="previewProductImage(this, 'new-preview')">
+                    <div id="new-preview" style="margin-top:8px; text-align:center;"></div>
                 </div>
                 <div class="form-group">
                     <label>Estoque (opcional)</label>
@@ -968,8 +969,9 @@
                     <input type="text" id="edit-product-emoji" maxlength="4">
                 </div>
                 <div class="form-group">
-                    <label>URL da Foto</label>
-                    <input type="url" id="edit-product-image" placeholder="https://exemplo.com/foto.jpg">
+                    <label>Foto do Produto</label>
+                    <input type="file" id="edit-product-image" accept="image/*" onchange="previewProductImage(this, 'edit-preview')">
+                    <div id="edit-preview" style="margin-top:8px; text-align:center;"></div>
                 </div>
                 <div class="form-group">
                     <label>Estoque</label>
@@ -1438,24 +1440,48 @@
             alert('Pedido salvo com sucesso!');
         }
 
+        function previewProductImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" style="max-width:120px; max-height:120px; border-radius:8px; margin-top:4px;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.innerHTML = '';
+            }
+        }
+
         function saveProduct(e) {
             e.preventDefault();
-            const product = {
-                id: Date.now(),
-                name: document.getElementById('product-name').value,
-                category: document.getElementById('product-category').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                description: document.getElementById('product-desc').value,
-                emoji: document.getElementById('product-emoji').value || '📦',
-                image: document.getElementById('product-image').value || '',
-                stock: parseInt(document.getElementById('product-stock').value) || 0
+            const fileInput = document.getElementById('product-image');
+            const saveProductData = (imageBase64) => {
+                const product = {
+                    id: Date.now(),
+                    name: document.getElementById('product-name').value,
+                    category: document.getElementById('product-category').value,
+                    price: parseFloat(document.getElementById('product-price').value),
+                    description: document.getElementById('product-desc').value,
+                    emoji: document.getElementById('product-emoji').value || '📦',
+                    image: imageBase64 || '',
+                    stock: parseInt(document.getElementById('product-stock').value) || 0
+                };
+                data.products.push(product);
+                save();
+                closeModal('new-product');
+                e.target.reset();
+                document.getElementById('new-preview').innerHTML = '';
+                refreshAll();
+                alert('Produto salvo com sucesso!');
             };
-            data.products.push(product);
-            save();
-            closeModal('new-product');
-            e.target.reset();
-            refreshAll();
-            alert('Produto salvo com sucesso!');
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) { saveProductData(ev.target.result); };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveProductData('');
+            }
         }
 
         function saveClient(e) {
@@ -2433,9 +2459,15 @@
             document.getElementById('edit-product-name').value = p.name;
             document.getElementById('edit-product-price').value = p.price;
             document.getElementById('edit-product-emoji').value = p.emoji || '';
-            document.getElementById('edit-product-image').value = p.image || '';
             document.getElementById('edit-product-stock').value = p.stock || 0;
             document.getElementById('edit-product-desc').value = p.description || '';
+            const preview = document.getElementById('edit-preview');
+            if (p.image) {
+                preview.innerHTML = `<img src="${p.image}" style="max-width:120px; max-height:120px; border-radius:8px;">`;
+            } else {
+                preview.innerHTML = '';
+            }
+            document.getElementById('edit-product-image').value = '';
             showModal('edit-product');
         }
 
@@ -2444,15 +2476,25 @@
             const id = parseInt(document.getElementById('edit-product-id').value);
             const p = data.products.find(pr => pr.id === id);
             if (!p) return;
-            p.name = document.getElementById('edit-product-name').value;
-            p.price = parseFloat(document.getElementById('edit-product-price').value);
-            p.emoji = document.getElementById('edit-product-emoji').value || '📦';
-            p.image = document.getElementById('edit-product-image').value || '';
-            p.stock = parseInt(document.getElementById('edit-product-stock').value) || 0;
-            p.description = document.getElementById('edit-product-desc').value;
-            save();
-            closeModal('edit-product');
-            refreshAll();
+            const fileInput = document.getElementById('edit-product-image');
+            const saveData = (imageBase64) => {
+                p.name = document.getElementById('edit-product-name').value;
+                p.price = parseFloat(document.getElementById('edit-product-price').value);
+                p.emoji = document.getElementById('edit-product-emoji').value || '📦';
+                if (imageBase64 !== null) p.image = imageBase64;
+                p.stock = parseInt(document.getElementById('edit-product-stock').value) || 0;
+                p.description = document.getElementById('edit-product-desc').value;
+                save();
+                closeModal('edit-product');
+                refreshAll();
+            };
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ev) { saveData(ev.target.result); };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveData(null);
+            }
         }
 
         // FECHAR MODAL CLICANDO FORA

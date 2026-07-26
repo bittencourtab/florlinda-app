@@ -934,6 +934,10 @@
                     <input type="text" id="product-emoji" placeholder="Ex: 🌸 🎁 ☕" maxlength="4">
                 </div>
                 <div class="form-group">
+                    <label>URL da Foto (opcional)</label>
+                    <input type="url" id="product-image" placeholder="https://exemplo.com/foto.jpg">
+                </div>
+                <div class="form-group">
                     <label>Estoque (opcional)</label>
                     <input type="number" id="product-stock" value="0" min="0" placeholder="0 = sem controle">
                 </div>
@@ -1405,6 +1409,7 @@
                 price: parseFloat(document.getElementById('product-price').value),
                 description: document.getElementById('product-desc').value,
                 emoji: document.getElementById('product-emoji').value || '📦',
+                image: document.getElementById('product-image').value || '',
                 stock: parseInt(document.getElementById('product-stock').value) || 0
             };
             data.products.push(product);
@@ -1744,9 +1749,10 @@
             }
             container.innerHTML = filtered.map(p => {
                 const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+                const imgContent = p.image ? `<img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width:100%; height:100%; object-fit:cover;"><span style="display:none; font-size:2.5em;">${p.emoji || '📦'}</span>` : `<span style="font-size:2.5em;">${p.emoji || '📦'}</span>`;
                 return `
                     <div class="product-card" onclick="editProductStock(${p.id})">
-                        <div class="product-img">${p.emoji || '📦'}</div>
+                        <div class="product-img">${imgContent}</div>
                         <div class="product-info">
                             <h3>${p.name}</h3>
                             <p>${formatCurrency(p.price)}</p>

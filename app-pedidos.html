@@ -1183,6 +1183,49 @@
             db.ref('deliveries').set(data.deliveries);
         }
 
+        function seedProducts() {
+            if (data.products.length > 0) return;
+            const catalog = [
+                { name: "Box de Flores G", price: 390, category: "box_flores", emoji: "💐", stock: 0, description: "Adicional de nome na caixa" },
+                { name: "Box de Flores M", price: 330, category: "box_flores", emoji: "💐", stock: 0, description: "Adicional de nome na caixa" },
+                { name: "Box de Flores P", price: 210, category: "box_flores", emoji: "💐", stock: 0, description: "Adicional de nome na caixa" },
+                { name: "Cesta Kids", price: 250, category: "cesta", emoji: "🧸", stock: 0, description: "Importante: O balão c..." },
+                { name: "Cesta Kids Mini", price: 190, category: "cesta", emoji: "🧸", stock: 0, description: "Importante: O balão c..." },
+                { name: "Balão a Gás", price: 45, category: "acessorio", emoji: "🎈", stock: 0, description: "Importante: Balão pode variar" },
+                { name: "Balão Mini Bubllo", price: 35, category: "acessorio", emoji: "🎈", stock: 0, description: "Preço só do Balão" },
+                { name: "Balão Pequeno Palito", price: 25, category: "acessorio", emoji: "🎈", stock: 0, description: "Não damos garantia" },
+                { name: "Caixa Envelope", price: 95, category: "box", emoji: "📦", stock: 0, description: "Caixa acompanha inicial" },
+                { name: "Caixa Afeto", price: 120, category: "box", emoji: "📦", stock: 0, description: "Acompanha caneca da..." },
+                { name: "Cake Box", price: 375, category: "combo", emoji: "🎂", stock: 0, description: "Acompanha um mini bolo" },
+                { name: "Box Primavera", price: 270, category: "box", emoji: "🌸", stock: 0, description: "" },
+                { name: "Box Luxo", price: 280, category: "box", emoji: "✨", stock: 0, description: "Caixa acompanha uma l..." },
+                { name: "Box Bebida", price: 270, category: "box", emoji: "🍷", stock: 0, description: "Caixa acompanha inicial..." },
+                { name: "Box Mimo", price: 200, category: "box", emoji: "🎁", stock: 0, description: "Caixa acompanha a inici..." },
+                { name: "Box de Flores e Doces", price: 280, category: "combo", emoji: "🌸🍫", stock: 0, description: "Caixa acompanha inicial..." },
+                { name: "Cesta Café Nascimento", price: 295, category: "cesta", emoji: "☕", stock: 0, description: "" },
+                { name: "Cesta Happy Hour", price: 370, category: "cesta", emoji: "🥂", stock: 0, description: "" },
+                { name: "Frios P", price: 270, category: "cesta", emoji: "🧀", stock: 0, description: "" },
+                { name: "Cesta Sem Lactose", price: 270, category: "cesta", emoji: "🌿", stock: 0, description: "" },
+                { name: "Cesto G", price: 270, category: "cesta", emoji: "🧺", stock: 0, description: "" },
+                { name: "Cesto M", price: 200, category: "cesta", emoji: "🧺", stock: 0, description: "" },
+                { name: "Cesto P", price: 150, category: "cesta", emoji: "🧺", stock: 0, description: "" },
+                { name: "Cesta Box G", price: 365, category: "box", emoji: "📦", stock: 0, description: "" },
+                { name: "Cesta Box M", price: 280, category: "box", emoji: "📦", stock: 0, description: "" },
+                { name: "Cesta Box P", price: 210, category: "box", emoji: "📦", stock: 0, description: "" },
+                { name: "Cesta Super Premium", price: 480, category: "cesta", emoji: "👑", stock: 0, description: "" },
+                { name: "Cesta Super Premium (M)", price: 450, category: "cesta", emoji: "👑", stock: 0, description: "" },
+                { name: "Cesta Premium", price: 335, category: "cesta", emoji: "🌟", stock: 0, description: "" },
+                { name: "Cesta Orquídea", price: 260, category: "cesta", emoji: "🌷", stock: 0, description: "" },
+                { name: "Cesta Violeta", price: 190, category: "cesta", emoji: "💜", stock: 0, description: "" },
+                { name: "Mini Bolo", price: 130, category: "acessorio", emoji: "🍰", stock: 0, description: "Somente vendido como adicional" },
+                { name: "Bolo Bento", price: 75, category: "acessorio", emoji: "🎂", stock: 0, description: "Vendido somente como adicional" }
+            ];
+            let id = data.products.length > 0 ? Math.max(...data.products.map(p => p.id)) + 1 : 1;
+            catalog.forEach(p => { p.id = id++; data.products.push(p); });
+            save();
+            refreshAll();
+        }
+
         // NAVEGAÇÃO
         function showPage(page, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2350,7 +2393,9 @@
         });
 
         // INICIAR - CARREGAR DADOS DO FIREBASE
-        loadData().catch(err => {
+        loadData().then(() => {
+            seedProducts();
+        }).catch(err => {
             console.error('Erro ao carregar dados:', err);
             refreshAll();
         });

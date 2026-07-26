@@ -1,7 +1,7 @@
 {
-    "name": "Florlinda - Arranjos e Cestas",
+    "name": "Florlinda",
     "short_name": "Florlinda",
-    "description": "Sistema de gestão de pedidos - Florlinda Arranjos e Cestas",
+    "description": "Florlinda - Arranjos e Cestas",
     "start_url": "app-pedidos.html",
     "display": "standalone",
     "background_color": "#FFF8F5",

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'florlinda-v1';
+const CACHE_NAME = 'florlinda-v3';
 const urlsToCache = ['app-pedidos.html', 'manifest.json', 'img/logo.png'];
 
 self.addEventListener('install', event => {
@@ -9,6 +9,11 @@ self.addEventListener('install', event => {
 
 self.addEventListener('fetch', event => {
     event.respondWith(
-        caches.match(event.request).then(response => response || fetch(event.request))
+        caches.match(event.request).then(response => {
+            return fetch(event.request).then(networkResponse => {
+                caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+                return networkResponse;
+            }).catch(() => response);
+        })
     );
 });

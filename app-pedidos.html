@@ -920,6 +920,20 @@
                         <option value="transferencia">Transferência</option>
                     </select>
                 </div>
+                <div class="form-group">
+                    <label>Mensagem pro Cartão</label>
+                    <textarea id="order-card-message" rows="3" placeholder="Ex: Para a família que tanto amamos..."></textarea>
+                    <small style="color:var(--text-light); font-size:0.75em;">Mensagem que irá no cartão do arranjo/cesta</small>
+                </div>
+                <div class="form-group">
+                    <label>Fotos do Pedido</label>
+                    <input type="file" id="order-photos" accept="image/*" multiple onchange="previewOrderPhotos(this)" style="display:none;">
+                    <div class="photo-upload" onclick="document.getElementById('order-photos').click()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                        <span>Toque para anexar fotos</span>
+                    </div>
+                    <div id="order-photos-preview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;"></div>
+                </div>
                 <button type="submit" class="btn btn-primary">Salvar Pedido e Agendar Entrega</button>
             </form>
         </div>
@@ -1481,49 +1495,77 @@
                 save();
             }
 
-            const order = {
-                id: Date.now(),
-                clientId: clientId,
-                productId: parseInt(document.getElementById('order-product').value),
-                qty: parseInt(document.getElementById('order-qty').value),
-                value: parseFloat(document.getElementById('order-value').value),
-                deliveryValue: parseFloat(document.getElementById('order-delivery-value').value) || 0,
-                receiverPhone: document.getElementById('order-receiver-phone').value,
-                receiverName: document.getElementById('order-receiver-name').value,
-                date: document.getElementById('order-date').value,
-                address: document.getElementById('order-address').value,
-                notes: document.getElementById('order-notes').value,
-                payment: document.getElementById('order-payment').value,
-                driverId: driverId,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-            data.orders.push(order);
+            const saveOrderData = (photosBase64) => {
+                const order = {
+                    id: Date.now(),
+                    clientId: clientId,
+                    productId: parseInt(document.getElementById('order-product').value),
+                    qty: parseInt(document.getElementById('order-qty').value),
+                    value: parseFloat(document.getElementById('order-value').value),
+                    deliveryValue: parseFloat(document.getElementById('order-delivery-value').value) || 0,
+                    receiverPhone: document.getElementById('order-receiver-phone').value,
+                    receiverName: document.getElementById('order-receiver-name').value,
+                    date: document.getElementById('order-date').value,
+                    address: document.getElementById('order-address').value,
+                    notes: document.getElementById('order-notes').value,
+                    cardMessage: document.getElementById('order-card-message').value,
+                    photos: photosBase64,
+                    payment: document.getElementById('order-payment').value,
+                    driverId: driverId,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
+                data.orders.push(order);
 
-            // Criar entrega automaticamente
-            const delivery = {
-                id: Date.now() + 2,
-                orderId: order.id,
-                driverId: driverId,
-                date: order.date,
-                time: document.getElementById('order-time').value,
-                address: order.address,
-                notes: order.notes,
-                status: 'pending',
-                createdAt: new Date().toISOString()
-            };
-            data.deliveries.push(delivery);
+                const delivery = {
+                    id: Date.now() + 2,
+                    orderId: order.id,
+                    driverId: driverId,
+                    date: order.date,
+                    time: document.getElementById('order-time').value,
+                    address: order.address,
+                    notes: order.notes,
+                    status: 'pending',
+                    createdAt: new Date().toISOString()
+                };
+                data.deliveries.push(delivery);
 
-            // Adicionar entrada financeira
-            data.finance.push({
-                id: Date.now() + 1,
-                type: 'income',
-                description: `Pedido - ${getClientName(order.clientId)}`,
-                value: order.value + (order.deliveryValue || 0),
-                date: order.date,
-                category: 'venda',
-                orderId: order.id
-            });
+                data.finance.push({
+                    id: Date.now() + 1,
+                    type: 'income',
+                    description: `Pedido - ${getClientName(order.clientId)}`,
+                    value: order.value + (order.deliveryValue || 0),
+                    date: order.date,
+                    category: 'venda',
+                    orderId: order.id
+                });
+
+                save();
+                closeModal('new-order');
+                e.target.reset();
+                document.getElementById('order-photos-preview').innerHTML = '';
+                refreshAll();
+                alert('Pedido salvo com sucesso!');
+            };
+
+            const fileInput = document.getElementById('order-photos');
+            if (fileInput.files && fileInput.files.length > 0) {
+                const photos = [];
+                let loaded = 0;
+                Array.from(fileInput.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        photos.push(ev.target.result);
+                        loaded++;
+                        if (loaded === fileInput.files.length) {
+                            saveOrderData(photos);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                saveOrderData([]);
+            }
 
             save();
             closeModal('new-order');
@@ -1542,6 +1584,23 @@
                 reader.readAsDataURL(input.files[0]);
             } else {
                 preview.innerHTML = '';
+            }
+        }
+
+        function previewOrderPhotos(input) {
+            const preview = document.getElementById('order-photos-preview');
+            preview.innerHTML = '';
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.style.cssText = 'position:relative; display:inline-block;';
+                        div.innerHTML = `<img src="${e.target.result}" style="width:70px; height:70px; object-fit:cover; border-radius:8px;">`;
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
             }
         }
 
@@ -2327,6 +2386,8 @@
                     <p>${o.payment === 'pix' ? 'PIX' : o.payment === 'dinheiro' ? 'Dinheiro' : o.payment === 'cartao' ? 'Cartão' : 'Transferência'}</p>
                 </div>
                 ${o.notes ? `<div class="card"><div class="card-title">Obs</div><p>${o.notes}</p></div>` : ''}
+                ${o.cardMessage ? `<div class="card"><div class="card-title">💌 Mensagem pro Cartão</div><p style="font-style:italic; color:var(--primary-dark);">"${o.cardMessage}"</p></div>` : ''}
+                ${o.photos && o.photos.length > 0 ? `<div class="card"><div class="card-title">📸 Fotos</div><div style="display:flex; gap:8px; flex-wrap:wrap;">${o.photos.map(p => `<img src="${p}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open('${p}', '_blank')">`).join('')}</div></div>` : ''}
                 <div class="form-group">
                     <label>Status</label>
                     <select onchange="updateOrderStatus(${o.id}, this.value)">

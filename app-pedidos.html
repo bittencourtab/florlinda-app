@@ -2628,6 +2628,40 @@
             const client = data.clients.find(c => c.id === o.clientId);
             const receiverName = o.receiverName || (client ? client.name : '');
             const hasPhotos = o.photos && o.photos.length > 0;
+            const photoCount = hasPhotos ? o.photos.length : 0;
+
+            let layout = '';
+            if (photoCount === 0) {
+                layout = `
+                    <div class="card-10x10"><div class="card-bg"><div class="card-inner"><div class="card-message">${o.cardMessage || ''}</div></div></div></div>
+                `;
+            } else if (photoCount === 1) {
+                layout = `
+                    <div class="card-10x10"><div class="card-bg"><div class="card-inner"><div class="card-message">${o.cardMessage || ''}</div></div></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[0]}"></div></div>
+                `;
+            } else if (photoCount === 2) {
+                layout = `
+                    <div class="card-10x10"><div class="card-bg"><div class="card-inner"><div class="card-message">${o.cardMessage || ''}</div></div></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[0]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[1]}"></div></div>
+                `;
+            } else if (photoCount === 3) {
+                layout = `
+                    <div class="card-10x10"><div class="card-bg"><div class="card-inner"><div class="card-message">${o.cardMessage || ''}</div></div></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[0]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[1]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[2]}"></div></div>
+                `;
+            } else {
+                layout = `
+                    <div class="card-10x10"><div class="card-bg"><div class="card-inner"><div class="card-message">${o.cardMessage || ''}</div></div></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[0]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[1]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[2]}"></div></div>
+                    <div class="polaroid-7x9"><div class="polaroid-img"><img src="${o.photos[3]}"></div></div>
+                `;
+            }
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
@@ -2661,7 +2695,6 @@
                         .card-10x10 {
                             width: 90mm;
                             height: 90mm;
-                            position: relative;
                             page-break-inside: avoid;
                         }
                         
@@ -2693,14 +2726,6 @@
                             align-items: center;
                             text-align: center;
                             padding: 5mm;
-                        }
-                        
-                        .card-10x10 .card-recipient {
-                            font-family: 'Caveat', cursive;
-                            font-size: 22px;
-                            font-weight: 700;
-                            color: #5a4a3a;
-                            margin-bottom: 3mm;
                         }
                         
                         .card-10x10 .card-message {
@@ -2737,15 +2762,6 @@
                             display: block;
                         }
                         
-                        .empty-slot {
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            color: #ccc;
-                            font-family: 'Caveat', cursive;
-                            font-size: 16px;
-                        }
-                        
                         @media print {
                             body { padding: 0; background: white; }
                             .a4-page { width: 100%; height: auto; }
@@ -2755,50 +2771,7 @@
                 </head>
                 <body>
                     <div class="a4-page">
-                        <div class="card-10x10">
-                            <div class="card-bg">
-                                <div class="card-inner">
-                                    <div class="card-recipient">${receiverName}</div>
-                                    <div class="card-message">${o.cardMessage || ''}</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        ${hasPhotos ? `
-                        <div class="polaroid-7x9">
-                            <div class="polaroid-img">
-                                <img src="${o.photos[0]}">
-                            </div>
-                        </div>
-                        ` : `
-                        <div class="polaroid-7x9">
-                            <div class="polaroid-img empty-slot">Sem foto</div>
-                        </div>
-                        `}
-                        
-                        ${hasPhotos && o.photos[1] ? `
-                        <div class="polaroid-7x9">
-                            <div class="polaroid-img">
-                                <img src="${o.photos[1]}">
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        ${hasPhotos && o.photos[2] ? `
-                        <div class="polaroid-7x9">
-                            <div class="polaroid-img">
-                                <img src="${o.photos[2]}">
-                            </div>
-                        </div>
-                        ` : ''}
-                        
-                        ${hasPhotos && o.photos[3] ? `
-                        <div class="polaroid-7x9">
-                            <div class="polaroid-img">
-                                <img src="${o.photos[3]}">
-                            </div>
-                        </div>
-                        ` : ''}
+                        ${layout}
                     </div>
                     ${'<'}script>window.onload = function() { window.print(); }${'>'}${'/'+'script'}
                 </body>

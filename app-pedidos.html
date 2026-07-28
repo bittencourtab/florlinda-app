@@ -2353,76 +2353,147 @@
                 { value: 'cancelled', label: 'Cancelado' }
             ];
 
-            const driver = data.drivers.find(d => d.id === o.driverId);
             const delivery = data.deliveries.find(d => d.orderId === o.id);
+
+            const clientSel = `<select id="edit-client">${data.clients.map(c => `<option value="${c.id}" ${c.id === o.clientId ? 'selected' : ''}>${c.name}</option>`).join('')}<option value="manual" ${!data.clients.find(c => c.id === o.clientId) ? 'selected' : ''}>Manual...</option></select>`;
+            const prodSel = `<select id="edit-product" onchange="document.getElementById('edit-value').value = this.options[this.selectedIndex].dataset.price || ''">${data.products.map(p => `<option value="${p.id}" data-price="${p.price}" ${p.id === o.productId ? 'selected' : ''}>${p.emoji || ''} ${p.name}</option>`).join('')}</select>`;
+            const driverSel = `<select id="edit-driver"><option value="0">Sem entregador</option>${data.drivers.map(d => `<option value="${d.id}" ${d.id === (delivery ? delivery.driverId : o.driverId) ? 'selected' : ''}>${d.name} (${d.vehicle})</option>`).join('')}</select>`;
+
+            const payOptions = [
+                { value: 'pix', label: 'PIX' },
+                { value: 'dinheiro', label: 'Dinheiro' },
+                { value: 'cartao', label: 'Cartão' },
+                { value: 'transferencia', label: 'Transferência' }
+            ];
 
             document.getElementById('order-detail-content').innerHTML = `
                 <div class="card">
                     <div class="card-title">Cliente</div>
-                    <p>${getClientName(o.clientId)}</p>
-                    ${o.clientId ? `<a href="https://wa.me/55${getClientPhone(o.clientId)}" target="_blank" style="color:var(--success); text-decoration:none; font-size:0.85em;">💬 WhatsApp cliente</a>` : ''}
+                    <div class="form-group"><label>Nome do Cliente</label>${clientSel}</div>
                 </div>
                 <div class="card">
                     <div class="card-title">Produto</div>
-                    <p>${getProductName(o.productId)}</p>
-                    <p>Qtd: ${o.qty} • ${formatCurrency(o.value)}</p>
-                    ${o.deliveryValue ? `<p style="font-size:0.85em; color:var(--text-light);">🚚 Entrega: ${formatCurrency(o.deliveryValue)}</p>` : ''}
+                    <div class="form-group"><label>Produto</label>${prodSel}</div>
+                    <div class="form-group"><label>Quantidade</label><input type="number" id="edit-qty" value="${o.qty}" min="1"></div>
+                    <div class="form-group"><label>Valor (R$)</label><input type="number" id="edit-value" value="${o.value}" step="0.01"></div>
+                    <div class="form-group"><label>Valor Entrega (R$)</label><input type="number" id="edit-delivery-value" value="${o.deliveryValue || 0}" step="0.01"></div>
                 </div>
                 <div class="card">
                     <div class="card-title">Entrega</div>
-                    <p>📅 ${formatDate(o.date)}</p>
-                    <p>📍 ${o.address || 'Não informado'}</p>
-                    ${o.address ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address)}" target="_blank" style="color:var(--primary-dark); text-decoration:none; font-size:0.85em;">🗺️ Abrir no Google Maps</a>` : ''}
+                    <div class="form-group"><label>Data</label><input type="date" id="edit-date" value="${o.date}"></div>
+                    <div class="form-group"><label>Horário</label>
+                        <select id="edit-time">
+                            ${['05:00','05:30','06:00','06:30','07:00','07:30','08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00'].map(t => `<option value="${t}" ${delivery && delivery.time === t ? 'selected' : ''}>${t}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Endereço</label><textarea id="edit-address" rows="2">${o.address || ''}</textarea></div>
+                    <div class="form-group"><label>Nome Recebedor</label><input type="text" id="edit-receiver-name" value="${o.receiverName || ''}"></div>
+                    <div class="form-group"><label>Tel Recebedor</label><input type="tel" id="edit-receiver-phone" value="${o.receiverPhone || ''}"></div>
+                    <div class="form-group"><label>Entregador</label>${driverSel}</div>
                 </div>
-                ${driver ? `
                 <div class="card">
-                    <div class="card-title">Entregador</div>
-                    <p>🚚 ${driver.name} (${driver.vehicle})</p>
-                    ${driver.phone ? `<a href="https://wa.me/55${driver.phone.replace(/\D/g, '')}" target="_blank" style="color:var(--success); text-decoration:none; font-size:0.85em;">💬 WhatsApp entregador</a>` : ''}
+                    <div class="card-title">Pagamento e Status</div>
+                    <div class="form-group"><label>Pagamento</label>
+                        <select id="edit-payment">${payOptions.map(p => `<option value="${p.value}" ${p.value === o.payment ? 'selected' : ''}>${p.label}</option>`).join('')}</select>
+                    </div>
+                    <div class="form-group"><label>Status</label>
+                        <select id="edit-status">${statusOptions.map(s => `<option value="${s.value}" ${s.value === o.status ? 'selected' : ''}>${s.label}</option>`).join('')}</select>
+                    </div>
                 </div>
-                ` : ''}
                 <div class="card">
-                    <div class="card-title">Pagamento</div>
-                    <p>${o.payment === 'pix' ? 'PIX' : o.payment === 'dinheiro' ? 'Dinheiro' : o.payment === 'cartao' ? 'Cartão' : 'Transferência'}</p>
+                    <div class="card-title">Observações</div>
+                    <div class="form-group"><textarea id="edit-notes" rows="2">${o.notes || ''}</textarea></div>
                 </div>
-                ${o.notes ? `<div class="card"><div class="card-title">Obs</div><p>${o.notes}</p></div>` : ''}
-                ${o.cardMessage ? `<div class="card"><div class="card-title">💌 Mensagem pro Cartão</div><p style="font-style:italic; color:var(--primary-dark);">"${o.cardMessage}"</p></div>` : ''}
-                ${o.photos && o.photos.length > 0 ? `<div class="card"><div class="card-title">📸 Fotos</div><div style="display:flex; gap:8px; flex-wrap:wrap;">${o.photos.map(p => `<img src="${p}" style="width:80px; height:80px; object-fit:cover; border-radius:8px; cursor:pointer;" onclick="window.open('${p}', '_blank')">`).join('')}</div></div>` : ''}
-                <div class="form-group">
-                    <label>Status</label>
-                    <select onchange="updateOrderStatus(${o.id}, this.value)">
-                        ${statusOptions.map(s => `<option value="${s.value}" ${o.status === s.value ? 'selected' : ''}>${s.label}</option>`).join('')}
-                    </select>
+                <div class="card">
+                    <div class="card-title">💌 Mensagem pro Cartão</div>
+                    <div class="form-group"><textarea id="edit-card-message" rows="3">${o.cardMessage || ''}</textarea></div>
                 </div>
-                <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
-                    <a href="https://wa.me/55${getClientPhone(o.clientId)}?text=Olá! ${getClientName(o.clientId)}, seu pedido de ${getProductName(o.productId)} está ${o.status === 'pending' ? 'pendente' : o.status === 'done' ? 'pronto' : o.status === 'cancelled' ? 'cancelado' : 'entregue'}! 💐" target="_blank" class="btn btn-success" style="text-decoration:none;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        Enviar WhatsApp ao Cliente
-                    </a>
-                    ${o.receiverPhone ? `
-                    <a href="https://wa.me/55${o.receiverPhone.replace(/\D/g, '')}?text=Olá! ${o.receiverName || 'Responsável'}, sua entrega da Florlinda está a caminho! 🚚💐" target="_blank" class="btn btn-success" style="text-decoration:none;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        WhatsApp ao Recebedor
-                    </a>
-                    ` : ''}
-                    ${o.cardMessage || (o.photos && o.photos.length > 0) ? `
-                    <button onclick="printCard(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #E8A5A0, #A8D5D0); width:100%;">
-                        💌 Imprimir Cartão e Fotos
-                    </button>
-                    ` : ''}
-                    ${driver && driver.phone ? `
-                    <button onclick="confirmSendDriver(${o.id}, ${driver.id})" class="btn btn-success" style="background:linear-gradient(135deg, #25D366, #128C7E);">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        Enviar WhatsApp ao Entregador
-                    </button>
-                    ` : ''}
-                    <button onclick="printProtocol(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #667eea, #764ba2); width:100%;">
-                        🖨️ Imprimir Protocolo
-                    </button>
+                <div class="card">
+                    <div class="card-title">📸 Fotos</div>
+                    <input type="file" id="edit-photos-input" accept="image/*" multiple onchange="previewEditPhotos(this)" style="display:none;">
+                    <div class="photo-upload" onclick="document.getElementById('edit-photos-input').click()" style="height:80px;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                        <span>Adicionar fotos</span>
+                    </div>
+                    <div id="edit-photos-preview" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        ${o.photos && o.photos.length > 0 ? o.photos.map((p, i) => `<div style="position:relative;"><img src="${p}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;"><button onclick="removeEditPhoto(${i})" style="position:absolute; top:-4px; right:-4px; background:#ff6b6b; color:white; border:none; border-radius:50%; width:18px; height:18px; font-size:0.7em; cursor:pointer;">✕</button></div>`).join('') : ''}
+                    </div>
+                    <input type="hidden" id="edit-existing-photos" value='${JSON.stringify(o.photos || [])}'>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+                    <button onclick="saveOrderEdit(${o.id})" class="btn btn-primary">Salvar Alterações</button>
+                    <button onclick="printCard(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #E8A5A0, #A8D5D0);">💌 Imprimir Cartão e Fotos</button>
+                    <button onclick="printProtocol(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #667eea, #764ba2);">🖨️ Imprimir Protocolo</button>
                 </div>
                 <button class="btn btn-danger" onclick="deleteOrder(${o.id})" style="margin-top:10px">Excluir Pedido</button>
             `;
             showModal('order-detail');
+        }
+
+        function removeEditPhoto(index) {
+            const input = document.getElementById('edit-existing-photos');
+            let photos = JSON.parse(input.value || '[]');
+            photos.splice(index, 1);
+            input.value = JSON.stringify(photos);
+            const preview = document.getElementById('edit-photos-preview');
+            const items = preview.children;
+            if (items[index]) items[index].remove();
+        }
+
+        function previewEditPhotos(input) {
+            const preview = document.getElementById('edit-photos-preview');
+            const existingInput = document.getElementById('edit-existing-photos');
+            let existing = JSON.parse(existingInput.value || '[]');
+            if (input.files) {
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        existing.push(e.target.result);
+                        existingInput.value = JSON.stringify(existing);
+                        const div = document.createElement('div');
+                        div.style.cssText = 'position:relative;';
+                        div.innerHTML = `<img src="${e.target.result}" style="width:60px; height:60px; object-fit:cover; border-radius:6px;">`;
+                        preview.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+
+        function saveOrderEdit(id) {
+            const order = data.orders.find(o => o.id === id);
+            if (!order) return;
+
+            const clientId = parseInt(document.getElementById('edit-client').value);
+            order.clientId = isNaN(clientId) ? order.clientId : clientId;
+            order.productId = parseInt(document.getElementById('edit-product').value);
+            order.qty = parseInt(document.getElementById('edit-qty').value);
+            order.value = parseFloat(document.getElementById('edit-value').value);
+            order.deliveryValue = parseFloat(document.getElementById('edit-delivery-value').value) || 0;
+            order.date = document.getElementById('edit-date').value;
+            order.address = document.getElementById('edit-address').value;
+            order.receiverName = document.getElementById('edit-receiver-name').value;
+            order.receiverPhone = document.getElementById('edit-receiver-phone').value;
+            order.driverId = parseInt(document.getElementById('edit-driver').value);
+            order.payment = document.getElementById('edit-payment').value;
+            order.status = document.getElementById('edit-status').value;
+            order.notes = document.getElementById('edit-notes').value;
+            order.cardMessage = document.getElementById('edit-card-message').value;
+            order.photos = JSON.parse(document.getElementById('edit-existing-photos').value || '[]');
+
+            const delivery = data.deliveries.find(d => d.orderId === id);
+            if (delivery) {
+                delivery.date = order.date;
+                delivery.time = document.getElementById('edit-time').value;
+                delivery.address = order.address;
+                delivery.driverId = order.driverId;
+                delivery.notes = order.notes;
+            }
+
+            save();
+            closeModal('order-detail');
+            refreshAll();
+            alert('Pedido atualizado!');
         }
 
         function printProtocol(id) {
@@ -2530,9 +2601,29 @@
         function printCard(id) {
             const o = data.orders.find(or => or.id === id);
             if (!o) return;
-            const product = data.products.find(p => p.id === o.productId);
             const client = data.clients.find(c => c.id === o.clientId);
             const receiverName = o.receiverName || (client ? client.name : '');
+            const hasPhotos = o.photos && o.photos.length > 0;
+
+            let photosHtml = '';
+            if (hasPhotos) {
+                const photoSlots = [];
+                for (let i = 0; i < Math.min(o.photos.length, 4); i++) {
+                    photoSlots.push(`
+                        <div class="polaroid">
+                            <div class="polaroid-img">
+                                <img src="${o.photos[i]}">
+                            </div>
+                            <div class="polaroid-bottom"></div>
+                        </div>
+                    `);
+                }
+                photosHtml = `
+                    <div class="photos-section">
+                        ${photoSlots.join('')}
+                    </div>
+                `;
+            }
 
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
@@ -2544,53 +2635,119 @@
                     <style>
                         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
                         * { margin: 0; padding: 0; box-sizing: border-box; }
-                        body { font-family: 'Cormorant Garamond', Georgia, serif; background: #f5f0eb; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
-                        .card-container { width: 18cm; min-height: 12cm; background: linear-gradient(135deg, #fdf6f0 0%, #f8ede3 50%, #fdf6f0 100%); border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); position: relative; overflow: hidden; page-break-inside: avoid; }
-                        .card-border { position: absolute; inset: 8px; border: 1.5px solid #c9a87c; border-radius: 2px; pointer-events: none; }
-                        .card-inner { position: absolute; inset: 14px; border: 0.5px solid rgba(201,168,124,0.3); pointer-events: none; }
-                        .card-content { padding: 2.5cm 2cm; text-align: center; position: relative; z-index: 1; }
-                        .card-flor { position: absolute; top: 15px; right: 20px; font-size: 2em; opacity: 0.15; transform: rotate(15deg); }
-                        .card-flor2 { position: absolute; bottom: 15px; left: 20px; font-size: 1.8em; opacity: 0.12; transform: rotate(-15deg); }
-                        .card-to { font-family: 'Cormorant Garamond', serif; font-size: 0.85em; color: #8b7355; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 0.3cm; }
-                        .card-recipient { font-family: 'Playfair Display', Georgia, serif; font-size: 1.6em; color: #5a4a3a; font-weight: 700; margin-bottom: 0.8cm; line-height: 1.3; }
-                        .card-divider { width: 2cm; height: 1px; background: linear-gradient(90deg, transparent, #c9a87c, transparent); margin: 0 auto 0.8cm; }
-                        .card-message { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.1em; color: #6a5a4a; line-height: 1.8; font-style: italic; max-width: 12cm; margin: 0 auto 0.8cm; white-space: pre-wrap; }
-                        .card-from { font-family: 'Cormorant Garamond', serif; font-size: 0.8em; color: #8b7355; letter-spacing: 1.5px; margin-top: 0.5cm; }
-                        .card-brand { font-family: 'Playfair Display', Georgia, serif; font-size: 0.75em; color: #c9a87c; letter-spacing: 3px; text-transform: uppercase; margin-top: 0.8cm; }
-                        .photos-page { page-break-before: always; padding: 1cm; }
-                        .photos-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.2em; color: #5a4a3a; margin-bottom: 0.5cm; }
-                        .photos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5cm; }
-                        .photo-item { border: 2px solid #c9a87c; border-radius: 4px; overflow: hidden; page-break-inside: avoid; }
-                        .photo-item img { width: 100%; height: auto; display: block; min-height: 5cm; object-fit: cover; }
+                        @page { size: A4 portrait; margin: 15mm; }
+                        body { font-family: 'Cormorant Garamond', Georgia, serif; background: white; width: 210mm; height: 297mm; margin: 0 auto; padding: 15mm; }
+                        
+                        .a4-page { width: 180mm; height: 267mm; position: relative; }
+                        
+                        .card-box {
+                            width: 100mm;
+                            height: 100mm;
+                            background: linear-gradient(135deg, #fdf6f0 0%, #f8ede3 50%, #fdf6f0 100%);
+                            border: 1.5px solid #c9a87c;
+                            position: relative;
+                            float: left;
+                            margin-right: 8mm;
+                            margin-bottom: 8mm;
+                            overflow: hidden;
+                            page-break-inside: avoid;
+                        }
+                        .card-inner-border { position: absolute; inset: 3mm; border: 0.5px solid rgba(201,168,124,0.3); pointer-events: none; }
+                        .card-flor { position: absolute; top: 2mm; right: 3mm; font-size: 1.2em; opacity: 0.12; transform: rotate(15deg); }
+                        .card-flor2 { position: absolute; bottom: 2mm; left: 3mm; font-size: 1em; opacity: 0.10; transform: rotate(-15deg); }
+                        .card-content { padding: 12mm 8mm; text-align: center; position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: center; }
+                        .card-to { font-size: 0.55em; color: #8b7355; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1mm; }
+                        .card-recipient { font-family: 'Playfair Display', Georgia, serif; font-size: 0.95em; color: #5a4a3a; font-weight: 700; margin-bottom: 3mm; line-height: 1.2; }
+                        .card-divider { width: 12mm; height: 0.5px; background: linear-gradient(90deg, transparent, #c9a87c, transparent); margin: 0 auto 3mm; }
+                        .card-message { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 0.7em; color: #6a5a4a; line-height: 1.6; font-style: italic; max-width: 75mm; margin: 0 auto 3mm; white-space: pre-wrap; word-wrap: break-word; }
+                        .card-from { font-size: 0.5em; color: #8b7355; letter-spacing: 1px; }
+                        .card-brand { font-family: 'Playfair Display', Georgia, serif; font-size: 0.45em; color: #c9a87c; letter-spacing: 2px; text-transform: uppercase; margin-top: 2mm; }
+                        
+                        .photos-section {
+                            float: left;
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 6mm;
+                            align-content: flex-start;
+                            padding-top: 2mm;
+                        }
+                        
+                        .polaroid {
+                            width: 70mm;
+                            height: 90mm;
+                            background: white;
+                            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+                            padding: 3mm 3mm 10mm 3mm;
+                            page-break-inside: avoid;
+                        }
+                        
+                        .polaroid-img {
+                            width: 64mm;
+                            height: 72mm;
+                            overflow: hidden;
+                            background: #f0f0f0;
+                        }
+                        
+                        .polaroid-img img {
+                            width: 100%;
+                            height: 100%;
+                            object-fit: cover;
+                            display: block;
+                        }
+                        
+                        .polaroid-bottom {
+                            height: 7mm;
+                        }
+                        
+                        .info-bar {
+                            clear: both;
+                            padding-top: 4mm;
+                            border-top: 0.5px solid #ddd;
+                            margin-top: 4mm;
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 0.45em;
+                            color: #999;
+                        }
+                        
                         @media print {
-                            body { background: white; padding: 0; }
-                            .card-container { box-shadow: none; margin: 0; }
+                            body { padding: 0; background: white; }
+                            .a4-page { width: 100%; height: auto; }
+                            .polaroid { box-shadow: none; border: 0.5px solid #eee; }
                         }
                     </style>
                 </head>
                 <body>
-                    <div class="card-container">
-                        <div class="card-border"></div>
-                        <div class="card-inner"></div>
-                        <div class="card-flor">🌸</div>
-                        <div class="card-flor2">🌿</div>
-                        <div class="card-content">
-                            <div class="card-to">Para</div>
-                            <div class="card-recipient">${receiverName}</div>
-                            <div class="card-divider"></div>
-                            <div class="card-message">${o.cardMessage || ''}</div>
-                            <div class="card-from">Com carinho,</div>
-                            <div class="card-brand">Florlinda</div>
+                    <div class="a4-page">
+                        <div class="card-box">
+                            <div class="card-inner-border"></div>
+                            <div class="card-flor">🌸</div>
+                            <div class="card-flor2">🌿</div>
+                            <div class="card-content">
+                                <div class="card-to">Para</div>
+                                <div class="card-recipient">${receiverName}</div>
+                                <div class="card-divider"></div>
+                                <div class="card-message">${o.cardMessage || ''}</div>
+                                <div class="card-from">Com carinho,</div>
+                                <div class="card-brand">Florlinda</div>
+                            </div>
+                        </div>
+                        
+                        ${hasPhotos ? photosHtml : `
+                        <div class="photos-section" style="display:flex; align-items:center; justify-content:center; width:80mm;">
+                            <div style="text-align:center; color:#ccc; font-size:0.7em;">
+                                <p>📭</p>
+                                <p>Sem fotos</p>
+                            </div>
+                        </div>
+                        `}
+                        
+                        <div class="info-bar">
+                            <span>Pedido #FL-${String(o.id).padStart(5, '0')}</span>
+                            <span>${formatDate(o.date)}</span>
+                            <span>Florlinda - Arranjos e Cestas</span>
                         </div>
                     </div>
-                    ${o.photos && o.photos.length > 0 ? `
-                    <div class="photos-page">
-                        <div class="photos-title">Fotos do Pedido</div>
-                        <div class="photos-grid">
-                            ${o.photos.map(p => `<div class="photo-item"><img src="${p}"></div>`).join('')}
-                        </div>
-                    </div>
-                    ` : ''}
                     ${'<'}script>window.onload = function() { window.print(); }${'>'}${'/'+'script'}
                 </body>
                 </html>

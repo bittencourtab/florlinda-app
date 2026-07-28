@@ -1496,8 +1496,10 @@
             }
 
             const saveOrderData = (photosBase64) => {
+                const orderNum = data.orders.length + 1;
                 const order = {
                     id: Date.now(),
+                    orderNumber: orderNum,
                     clientId: clientId,
                     productId: parseInt(document.getElementById('order-product').value),
                     qty: parseInt(document.getElementById('order-qty').value),
@@ -1811,6 +1813,12 @@
             return c.phone.replace(/\D/g, '');
         }
 
+        function getDriverPhone(id) {
+            const d = data.drivers.find(dr => dr.id === id);
+            if (!d || !d.phone) return '';
+            return d.phone.replace(/\D/g, '');
+        }
+
         function getProductName(id) {
             const p = data.products.find(pr => pr.id === id);
             return p ? `${p.emoji || ''} ${p.name}` : 'Produto removido';
@@ -1911,7 +1919,7 @@
 
                     return `<div class="order-item" onclick="showOrderDetail(${o.id})">
                         <div class="order-info">
-                            <h3>${getClientName(o.clientId)}</h3>
+                            <h3>#${o.orderNumber || '...'} ${getClientName(o.clientId)}</h3>
                             <p>${getProductName(o.productId)} • ${formatDate(o.date)} • ${formatCurrency(o.value)}</p>
                             <div style="margin-top:4px;">${statusBadges}</div>
                         </div>
@@ -1937,7 +1945,7 @@
             container.innerHTML = filtered.map(o => `
                 <div class="order-item" onclick="showOrderDetail(${o.id})">
                     <div class="order-info">
-                        <h3>${getClientName(o.clientId)}</h3>
+                        <h3>#${o.orderNumber || '...'} ${getClientName(o.clientId)}</h3>
                         <p>${getProductName(o.productId)} • ${formatDate(o.date)}</p>
                         <span class="badge badge-${o.status}">${o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : o.status === 'cancelled' ? 'Cancelado' : 'Entregue'}</span>
                     </div>
@@ -2367,6 +2375,9 @@
             ];
 
             document.getElementById('order-detail-content').innerHTML = `
+                <div style="text-align:center; margin-bottom:12px;">
+                    <span style="background:var(--primary); color:white; padding:6px 16px; border-radius:20px; font-weight:700; font-size:1.1em;">Pedido #${o.orderNumber || '...'}</span>
+                </div>
                 <div class="card">
                     <div class="card-title">Cliente</div>
                     <div class="form-group"><label>Nome do Cliente</label>${clientSel}</div>
@@ -2422,6 +2433,19 @@
                 </div>
                 <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
                     <button onclick="saveOrderEdit(${o.id})" class="btn btn-primary">Salvar Alterações</button>
+                    <a href="https://wa.me/55${getClientPhone(o.clientId)}" target="_blank" class="btn btn-success" style="text-decoration:none;">
+                        💬 WhatsApp Cliente
+                    </a>
+                    ${o.receiverPhone ? `
+                    <a href="https://wa.me/55${o.receiverPhone.replace(/\D/g, '')}" target="_blank" class="btn btn-success" style="text-decoration:none;">
+                        💬 WhatsApp Recebedor
+                    </a>
+                    ` : ''}
+                    ${(delivery && delivery.driverId) || o.driverId ? `
+                    <a href="https://wa.me/55${getDriverPhone((delivery ? delivery.driverId : o.driverId))}" target="_blank" class="btn btn-success" style="text-decoration:none;">
+                        💬 WhatsApp Entregador
+                    </a>
+                    ` : ''}
                     <button onclick="printCard(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #E8A5A0, #A8D5D0);">💌 Imprimir Cartão e Fotos</button>
                     <button onclick="printProtocol(${o.id})" class="btn btn-primary" style="background:linear-gradient(135deg, #667eea, #764ba2);">🖨️ Imprimir Protocolo</button>
                 </div>
@@ -2504,7 +2528,7 @@
             const product = data.products.find(p => p.id === o.productId);
             const client = data.clients.find(c => c.id === o.clientId);
             const now = new Date();
-            const protocolNum = 'FL-' + String(o.id).padStart(5, '0');
+            const protocolNum = 'FL-' + String(o.orderNumber || o.id).padStart(5, '0');
 
             const payLabel = o.payment === 'pix' ? 'PIX' : o.payment === 'dinheiro' ? 'Dinheiro' : o.payment === 'cartao' ? 'Cartão' : 'Transferência';
             const statusLabel = o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : o.status === 'delivered' ? 'Entregue' : 'Cancelado';

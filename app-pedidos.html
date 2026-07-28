@@ -2629,26 +2629,6 @@
             const receiverName = o.receiverName || (client ? client.name : '');
             const hasPhotos = o.photos && o.photos.length > 0;
 
-            let photosHtml = '';
-            if (hasPhotos) {
-                const photoSlots = [];
-                for (let i = 0; i < Math.min(o.photos.length, 4); i++) {
-                    photoSlots.push(`
-                        <div class="polaroid">
-                            <div class="polaroid-img">
-                                <img src="${o.photos[i]}">
-                            </div>
-                            <div class="polaroid-bottom"></div>
-                        </div>
-                    `);
-                }
-                photosHtml = `
-                    <div class="photos-section">
-                        ${photoSlots.join('')}
-                    </div>
-                `;
-            }
-
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <!DOCTYPE html>
@@ -2657,120 +2637,166 @@
                     <meta charset="UTF-8">
                     <title>Cartão Florlinda</title>
                     <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+                        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Quicksand:wght@400;500;600&display=swap');
                         * { margin: 0; padding: 0; box-sizing: border-box; }
-                        @page { size: A4 portrait; margin: 15mm; }
-                        body { font-family: 'Cormorant Garamond', Georgia, serif; background: white; width: 210mm; height: 297mm; margin: 0 auto; padding: 15mm; }
+                        @page { size: A4 portrait; margin: 12mm; }
                         
-                        .a4-page { width: 180mm; height: 267mm; position: relative; }
-                        
-                        .card-box {
-                            width: 100mm;
-                            height: 100mm;
-                            background: linear-gradient(135deg, #fdf6f0 0%, #f8ede3 50%, #fdf6f0 100%);
-                            border: 1.5px solid #c9a87c;
-                            position: relative;
-                            float: left;
-                            margin-right: 8mm;
-                            margin-bottom: 8mm;
-                            overflow: hidden;
-                            page-break-inside: avoid;
+                        body { 
+                            font-family: 'Caveat', cursive; 
+                            background: white; 
+                            width: 210mm; 
+                            margin: 0 auto; 
+                            padding: 12mm;
                         }
-                        .card-inner-border { position: absolute; inset: 3mm; border: 0.5px solid rgba(201,168,124,0.3); pointer-events: none; }
-                        .card-flor { position: absolute; top: 2mm; right: 3mm; font-size: 1.2em; opacity: 0.12; transform: rotate(15deg); }
-                        .card-flor2 { position: absolute; bottom: 2mm; left: 3mm; font-size: 1em; opacity: 0.10; transform: rotate(-15deg); }
-                        .card-content { padding: 12mm 8mm; text-align: center; position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; justify-content: center; }
-                        .card-to { font-size: 0.55em; color: #8b7355; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1mm; }
-                        .card-recipient { font-family: 'Playfair Display', Georgia, serif; font-size: 0.95em; color: #5a4a3a; font-weight: 700; margin-bottom: 3mm; line-height: 1.2; }
-                        .card-divider { width: 12mm; height: 0.5px; background: linear-gradient(90deg, transparent, #c9a87c, transparent); margin: 0 auto 3mm; }
-                        .card-message { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 0.7em; color: #6a5a4a; line-height: 1.6; font-style: italic; max-width: 75mm; margin: 0 auto 3mm; white-space: pre-wrap; word-wrap: break-word; }
-                        .card-from { font-size: 0.5em; color: #8b7355; letter-spacing: 1px; }
-                        .card-brand { font-family: 'Playfair Display', Georgia, serif; font-size: 0.45em; color: #c9a87c; letter-spacing: 2px; text-transform: uppercase; margin-top: 2mm; }
                         
-                        .photos-section {
-                            float: left;
-                            display: flex;
-                            flex-wrap: wrap;
+                        .a4-page {
+                            width: 186mm;
+                            height: 273mm;
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            grid-template-rows: 1fr 1fr;
                             gap: 6mm;
-                            align-content: flex-start;
-                            padding-top: 2mm;
                         }
                         
-                        .polaroid {
-                            width: 70mm;
-                            height: 90mm;
-                            background: white;
-                            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-                            padding: 3mm 3mm 10mm 3mm;
+                        .card-slot {
+                            width: 90mm;
+                            height: 128mm;
+                            position: relative;
                             page-break-inside: avoid;
                         }
                         
-                        .polaroid-img {
-                            width: 64mm;
-                            height: 72mm;
-                            overflow: hidden;
-                            background: #f0f0f0;
-                        }
-                        
-                        .polaroid-img img {
+                        .card-bg {
                             width: 100%;
                             height: 100%;
-                            object-fit: cover;
-                            display: block;
-                        }
-                        
-                        .polaroid-bottom {
-                            height: 7mm;
-                        }
-                        
-                        .info-bar {
-                            clear: both;
-                            padding-top: 4mm;
-                            border-top: 0.5px solid #ddd;
-                            margin-top: 4mm;
+                            background: repeating-linear-gradient(
+                                0deg,
+                                #fce4e8 0px,
+                                #fce4e8 2px,
+                                #fdf0f2 2px,
+                                #fdf0f2 4px
+                            );
+                            border: 2px dashed #8fb8b0;
+                            border-radius: 4px;
                             display: flex;
-                            justify-content: space-between;
-                            font-size: 0.45em;
-                            color: #999;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 10mm 8mm;
+                            position: relative;
+                        }
+                        
+                        .card-inner {
+                            background: rgba(255,255,255,0.7);
+                            width: 100%;
+                            height: 100%;
+                            border-radius: 2px;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            text-align: center;
+                            padding: 6mm;
+                        }
+                        
+                        .card-recipient {
+                            font-family: 'Caveat', cursive;
+                            font-size: 1.1em;
+                            font-weight: 700;
+                            color: #5a4a3a;
+                            margin-bottom: 4mm;
+                        }
+                        
+                        .card-message {
+                            font-family: 'Caveat', cursive;
+                            font-size: 0.75em;
+                            color: #6a5a4a;
+                            line-height: 1.5;
+                            white-space: pre-wrap;
+                            word-wrap: break-word;
+                            max-width: 70mm;
+                        }
+                        
+                        .card-brand {
+                            position: absolute;
+                            bottom: 3mm;
+                            font-family: 'Quicksand', sans-serif;
+                            font-size: 0.4em;
+                            color: #8fb8b0;
+                            letter-spacing: 1px;
+                        }
+                        
+                        .card.active {
+                            outline: 3px solid #333;
+                            outline-offset: 2px;
+                        }
+                        
+                        .empty-slot {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #ccc;
+                            font-size: 0.8em;
+                            font-family: 'Quicksand', sans-serif;
                         }
                         
                         @media print {
                             body { padding: 0; background: white; }
                             .a4-page { width: 100%; height: auto; }
-                            .polaroid { box-shadow: none; border: 0.5px solid #eee; }
                         }
                     </style>
                 </head>
                 <body>
                     <div class="a4-page">
-                        <div class="card-box">
-                            <div class="card-inner-border"></div>
-                            <div class="card-flor">🌸</div>
-                            <div class="card-flor2">🌿</div>
-                            <div class="card-content">
-                                <div class="card-to">Para</div>
-                                <div class="card-recipient">${receiverName}</div>
-                                <div class="card-divider"></div>
-                                <div class="card-message">${o.cardMessage || ''}</div>
-                                <div class="card-from">Com carinho,</div>
+                        <div class="card-slot">
+                            <div class="card-bg">
+                                <div class="card-inner">
+                                    <div class="card-recipient">${receiverName}</div>
+                                    <div class="card-message">${o.cardMessage || ''}</div>
+                                </div>
                                 <div class="card-brand">Florlinda</div>
                             </div>
                         </div>
                         
-                        ${hasPhotos ? photosHtml : `
-                        <div class="photos-section" style="display:flex; align-items:center; justify-content:center; width:80mm;">
-                            <div style="text-align:center; color:#ccc; font-size:0.7em;">
-                                <p>📭</p>
-                                <p>Sem fotos</p>
+                        ${hasPhotos ? `
+                        <div class="card-slot">
+                            <div class="card-bg" style="padding:4mm;">
+                                <img src="${o.photos[0]}" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="card-slot">
+                            <div class="card-bg">
+                                <div class="card-inner empty-slot">Sem foto</div>
                             </div>
                         </div>
                         `}
                         
-                        <div class="info-bar">
-                            <span>Pedido #FL-${String(o.id).padStart(5, '0')}</span>
-                            <span>${formatDate(o.date)}</span>
-                            <span>Florlinda - Arranjos e Cestas</span>
+                        ${hasPhotos && o.photos[1] ? `
+                        <div class="card-slot">
+                            <div class="card-bg" style="padding:4mm;">
+                                <img src="${o.photos[1]}" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">
+                            </div>
                         </div>
+                        ` : `
+                        <div class="card-slot">
+                            <div class="card-bg">
+                                <div class="card-inner empty-slot">${hasPhotos ? 'Foto 2' : 'Página 2'}</div>
+                            </div>
+                        </div>
+                        `}
+                        
+                        ${hasPhotos && o.photos[2] ? `
+                        <div class="card-slot">
+                            <div class="card-bg" style="padding:4mm;">
+                                <img src="${o.photos[2]}" style="width:100%; height:100%; object-fit:cover; border-radius:2px;">
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="card-slot">
+                            <div class="card-bg">
+                                <div class="card-inner empty-slot">${hasPhotos ? 'Foto 3' : 'Página 3'}</div>
+                            </div>
+                        </div>
+                        `}
                     </div>
                     ${'<'}script>window.onload = function() { window.print(); }${'>'}${'/'+'script'}
                 </body>

@@ -652,12 +652,12 @@
 
         /* INSTAGRAM SECTION */
         .instagram-section {
-            background: linear-gradient(135deg, #fef5f1 0%, #fdf2ec 100%);
+            background: #fef5f0;
             padding: 50px 20px;
-            margin-top: 40px;
+            margin-top: 0;
         }
         .instagram-header {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto 30px;
             display: flex;
             align-items: center;
@@ -671,111 +671,89 @@
             gap: 15px;
         }
         .instagram-avatar {
-            width: 70px;
-            height: 70px;
+            width: 75px;
+            height: 75px;
             border-radius: 50%;
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             padding: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         .instagram-avatar img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            border: 3px solid white;
+            border: 3px solid #fef5f0;
         }
         .instagram-info h3 {
             font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            color: var(--brown);
-            margin-bottom: 2px;
+            font-size: 1.1rem;
+            color: #4a3a2a;
+            margin-bottom: 3px;
+            font-weight: 600;
         }
         .instagram-info p {
-            font-size: 0.8rem;
-            color: var(--brown-light);
-        }
-        .instagram-stats {
-            font-weight: 600;
-            color: var(--brown) !important;
-            margin-top: 3px;
+            font-size: 0.9rem;
+            color: #8a7a6a;
         }
         .instagram-follow-btn {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 25px;
+            padding: 10px 28px;
             background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
             color: white;
             border: none;
             border-radius: 25px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             text-decoration: none;
             cursor: pointer;
             transition: transform 0.3s, box-shadow 0.3s;
         }
         .instagram-follow-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(225, 48, 108, 0.3);
+            box-shadow: 0 5px 20px rgba(225, 48, 108, 0.35);
         }
         .instagram-gallery {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
-            gap: 5px;
-            max-width: 900px;
-            margin: 0 auto 25px;
+            gap: 12px;
+            max-width: 950px;
+            margin: 0 auto 30px;
         }
         .ig-item {
             aspect-ratio: 1;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
             display: block;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .ig-item:hover { transform: scale(1.05); }
-        .ig-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .ig-overlay {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .ig-item:hover .ig-overlay { opacity: 1; }
-        .ig-overlay span {
-            color: white;
-            font-weight: 600;
-            font-size: 0.8rem;
+        .ig-item:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.12);
         }
         .instagram-cta {
             text-align: center;
         }
         .instagram-cta p {
-            color: var(--brown-light);
-            margin-bottom: 10px;
-            font-size: 0.9rem;
+            color: #8a7a6a;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
         }
         .ig-cta-btn {
             display: inline-block;
-            padding: 10px 30px;
-            background: white;
+            padding: 12px 35px;
+            background: transparent;
             color: #dc2743;
-            border-radius: 25px;
+            border-radius: 30px;
             text-decoration: none;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             border: 2px solid #dc2743;
             transition: all 0.3s;
         }
@@ -784,8 +762,11 @@
             color: white;
         }
         @media (max-width: 768px) {
-            .instagram-gallery { grid-template-columns: repeat(3, 1fr); }
-            .instagram-header { flex-direction: column; align-items: flex-start; }
+            .instagram-gallery { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .instagram-header { flex-direction: column; align-items: center; text-align: center; }
+        }
+        @media (max-width: 480px) {
+            .instagram-gallery { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -983,7 +964,6 @@
                 <div class="instagram-info">
                     <h3>@florlindaarranjosecestas</h3>
                     <p>Arranjos e Cestas com amor 💐</p>
-                    <p class="instagram-stats" id="ig-stats"></p>
                 </div>
             </div>
             <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="instagram-follow-btn">
@@ -992,24 +972,12 @@
             </a>
         </div>
         <div class="instagram-gallery" id="ig-gallery">
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#f8a4c8,#c8a8e9);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#c8a8e9,#7fb5b0);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#7fb5b0,#f8a4c8);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#fdd5e7,#e8d5f5);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#e8d5f5,#fdd5e7);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
-            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#f8a4c8,#7fb5b0);">
-                <div class="ig-overlay"><span>Ver perfil →</span></div>
-            </a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#f5b8d4,#e8b4d8);"></a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#c5b8e8,#a8c8d8);"></a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#a8d0c8,#e8b4c8);"></a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#f8d0e0,#f0c8e8);"></a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#e0d0f0,#d8c8e8);"></a>
+            <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-item" style="background:linear-gradient(135deg,#f0b8c8,#b8d0d0);"></a>
         </div>
         <div class="instagram-cta">
             <p>Siga-nos no Instagram para ver nossos trabalhos!</p>

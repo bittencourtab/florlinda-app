@@ -771,6 +771,9 @@
     </style>
 </head>
 <body>
+    <div style="background:linear-gradient(90deg,#e8967a,#d4785c);color:white;text-align:center;padding:10px 20px;font-size:0.85rem;font-weight:500;">
+        🚧 Site em desenvolvimento. Em breve novidades! 🌸
+    </div>
     <header>
         <div class="top-bar">
             <a href="https://wa.me/5548996725990" target="_blank" class="top-bar-link whatsapp-link">
@@ -875,10 +878,6 @@
                         <div class="icon">📱</div>
                         <div class="label">PIX</div>
                     </div>
-                    <div class="payment-opt" onclick="selectPayment('dinheiro', this)">
-                        <div class="icon">💵</div>
-                        <div class="label">Dinheiro</div>
-                    </div>
                     <div class="payment-opt" onclick="selectPayment('cartao', this)">
                         <div class="icon">💳</div>
                         <div class="label">Cartão</div>
@@ -949,6 +948,19 @@
                 <p><strong>(48) 99672-5990</strong></p>
             </div>
             <button class="pix-close" onclick="closePixModal()">OK</button>
+        </div>
+    </div>
+
+    <div class="pix-modal" id="confirm-modal">
+        <div class="pix-content">
+            <div style="font-size:3rem;margin-bottom:10px;">✅</div>
+            <h3 style="color:var(--green-dark);">Pedido Enviado!</h3>
+            <div id="confirm-text" style="margin:15px 0;line-height:1.6;color:var(--brown);"></div>
+            <div style="margin-top:15px;padding:12px;background:var(--cream);border-radius:10px;">
+                <p style="font-size:0.85rem;color:var(--brown-light);">Chave PIX para pagamento:</p>
+                <p style="font-weight:700;color:var(--green-dark);font-size:1.1rem;">(48) 99672-5990</p>
+            </div>
+            <button class="pix-close" onclick="closeConfirmModal()">OK</button>
         </div>
     </div>
 
@@ -1302,12 +1314,12 @@
             cart = [];
             updateCartCount();
 
-            if (selectedPayment === 'pix') {
-                document.getElementById('pix-code').textContent = 'Chave PIX: (48) 99672-5990';
-                document.getElementById('pix-modal').classList.add('active');
-            } else {
-                showToast('Pedido enviado com sucesso!');
-            }
+            const confirmMsg = document.getElementById('confirm-modal');
+            document.getElementById('confirm-text').innerHTML = 
+                `Pedido enviado com sucesso! 🌸<br><br>` +
+                `<strong>Seu pedido só será confirmado após o pagamento.</strong><br><br>` +
+                `Faça o pagamento via <strong>${selectedPayment.toUpperCase()}</strong> e envie o comprovante pelo WhatsApp.`;
+            confirmModal.classList.add('active');
 
             showHome();
         }

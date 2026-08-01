@@ -1219,6 +1219,7 @@
             if (q) {
                 filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));
             }
+            filtered.sort((a, b) => (a.order || 99) - (b.order || 99));
             renderProducts(filtered, 'catalog-grid');
             renderProducts(filtered.slice(0, 6), 'featured-grid');
         }
@@ -1384,7 +1385,8 @@
                     image: '../img/dia-dos-pais/cesta-g-bento.png',
                     emoji: '💙',
                     category: 'dia-pais',
-                    promotion: true
+                    promotion: true,
+                    order: 1
                 },
                 {
                     id: 'dia-pais-03',
@@ -1394,7 +1396,8 @@
                     image: '../img/dia-dos-pais/cesta-g-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
-                    promotion: true
+                    promotion: true,
+                    order: 2
                 },
                 {
                     id: 'dia-pais-02',
@@ -1404,7 +1407,8 @@
                     image: '../img/dia-dos-pais/cesta-m-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
-                    promotion: true
+                    promotion: true,
+                    order: 3
                 },
                 {
                     id: 'dia-pais-01',
@@ -1414,7 +1418,8 @@
                     image: '../img/dia-dos-pais/cesta-p-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
-                    promotion: true
+                    promotion: true,
+                    order: 4
                 }
             ];
             

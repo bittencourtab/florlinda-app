@@ -630,10 +630,12 @@
             .cart-sidebar { width: 100%; right: -100%; }
             .nav-links { gap: 12px; }
             .payment-options { grid-template-columns: 1fr; }
+            .banner-dia-pais img { max-height: 180px; }
         }
         @media (max-width: 480px) {
             .products-grid { grid-template-columns: 1fr; }
             .header-inner { flex-wrap: wrap; gap: 10px; }
+            .banner-dia-pais img { max-height: 150px; }
         }
 
         /* LOADING */
@@ -806,7 +808,7 @@
     </header>
 
     <div id="page-home">
-        <a href="#" onclick="event.preventDefault();showCatalog('dia-pais')" style="display:block;text-decoration:none;background:#1a3a5c;position:relative;">
+        <a href="#" onclick="event.preventDefault();showCatalog('dia-pais')" class="banner-dia-pais" style="display:block;text-decoration:none;background:#1a3a5c;position:relative;">
             <img src="../img/dia-dos-pais/banner-dia-pais.png" alt="Dia dos Pais - Promoção" style="width:100%;max-height:350px;object-fit:contain;display:block;">
             <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:white;color:#1a3a5c;padding:12px 30px;border-radius:25px;font-weight:600;font-size:1rem;box-shadow:0 4px 15px rgba(0,0,0,0.3);white-space:nowrap;">💙 Clique aqui para ver as cestas Dia dos Pais</div>
         </a>

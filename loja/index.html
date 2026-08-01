@@ -1229,7 +1229,18 @@
                 currentFilter = 'all';
                 document.getElementById('catalog-title').textContent = 'Todos os Produtos';
             }
-            renderProducts(allProducts, 'catalog-grid');
+            let filtered = allProducts;
+            if (currentFilter !== 'all') {
+                filtered = allProducts.filter(p => getCategory(p.name) === currentFilter);
+            }
+            renderProducts(filtered, 'catalog-grid');
+            document.querySelectorAll('#filter-btns-2 .filter-btn').forEach(b => {
+                b.classList.remove('active');
+                if ((currentFilter === 'all' && b.textContent === 'Todos') || b.textContent === CATEGORIES[currentFilter]) {
+                    b.classList.add('active');
+                }
+            });
+            window.scrollTo(0, 0);
         }
 
         function goCheckout() {

@@ -615,11 +615,13 @@
             padding: 12px 25px;
             border-radius: 25px;
             font-weight: 500;
-            z-index: 500;
-            transition: transform 0.3s;
+            z-index: 9999;
+            transition: transform 0.3s, opacity 0.3s;
             box-shadow: var(--shadow-lg);
+            opacity: 0;
+            pointer-events: none;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         /* RESPONSIVE */
         @media (max-width: 768px) {
@@ -807,7 +809,7 @@
         <div class="hero">
             <h2>Flores que Contam Histórias</h2>
             <p>Arranjos, cestas e presentes feitos com carinho para os momentos especiais da sua vida</p>
-            <button class="hero-btn" onclick="showCatalog()">Ver Produtos</button>
+            <button class="hero-btn" onclick="event.preventDefault();showCatalog()">Ver Produtos</button>
         </div>
 
         <div class="section">
@@ -1058,11 +1060,16 @@
             return 'R$ ' + (v || 0).toFixed(2).replace('.', ',');
         }
 
+        let toastTimeout;
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
+            clearTimeout(toastTimeout);
+            t.classList.remove('show');
+            setTimeout(() => {
+                t.textContent = msg;
+                t.classList.add('show');
+                toastTimeout = setTimeout(() => t.classList.remove('show'), 2500);
+            }, 50);
         }
 
         function updateCartCount() {
@@ -1343,6 +1350,7 @@
             renderFilters('filter-btns');
             renderFilters('filter-btns-2');
             showHome();
+            updateCartCount();
         });
     </script>
 </body>

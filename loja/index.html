@@ -809,10 +809,13 @@
     </header>
 
     <div id="page-home">
-        <div style="background:linear-gradient(135deg,#1a3a5c,#2d5a87);padding:40px 20px;text-align:center;color:white;">
-            <h2 style="font-size:2rem;margin-bottom:10px;color:white;">💙 Dia dos Pais 💙</h2>
-            <p style="font-size:1.1rem;opacity:0.9;max-width:600px;margin:0 auto 25px;">Surpreenda seu pai com cestas especiais cheias de amor!</p>
-            <button onclick="showCatalog('dia-pais')" style="background:white;color:#1a3a5c;border:none;padding:12px 30px;border-radius:25px;font-weight:600;font-size:1rem;cursor:pointer;">Ver Cestas Dia dos Pais</button>
+        <div style="background:linear-gradient(135deg,#1a3a5c,#2d5a87);padding:40px 20px;text-align:center;color:white;position:relative;overflow:hidden;">
+            <img src="img/dia-dos-pais/banner-dia-pais.png" alt="Dia dos Pais" style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.3;">
+            <div style="position:relative;z-index:1;">
+                <h2 style="font-size:2rem;margin-bottom:10px;color:white;">💙 Dia dos Pais 💙</h2>
+                <p style="font-size:1.1rem;opacity:0.9;max-width:600px;margin:0 auto 25px;">Surpreenda seu pai com cestas especiais cheias de amor!</p>
+                <button onclick="showCatalog('dia-pais')" style="background:white;color:#1a3a5c;border:none;padding:12px 30px;border-radius:25px;font-weight:600;font-size:1rem;cursor:pointer;">Ver Cestas Dia dos Pais</button>
+            </div>
         </div>
 
         <div class="hero">
@@ -1367,43 +1370,43 @@
         });
 
         async function seedDiaDosPais() {
-            const snapshot = await db.ref('products').once('value');
-            const existing = snapshot.val() || {};
-            const existingNames = Object.values(existing).map(p => p.name);
-            
             const diaDosPaisProducts = [
                 {
                     id: 'dia-pais-01',
-                    name: 'Cesta amor de pai P',
-                    description: 'Bolo de cenoura, suco de Tangerina, chocolate, ovo de leite ninho, folhado de chocolate, drip coffee, assadinhas de napolitano, mini pães de batata, mini pastel assado de língua Blumenau, biscoitos recheados com nutella, croissant de peito de peru, brigadeiros gourmet, arranjo de flores.',
+                    name: 'Cesta Amor de Pai P',
+                    description: '1 bolo de cenoura, 1 suco de Tangerina, 1 drip Coffee, 1 pão de leite ninho, 1 folhado de chocolate, 1 cookie recheado, 2 Assadinhos de napolitano, 3 Assadinhos de frango, 2 Mini pastel assado de linguiça Blumenau, 2 biscoitos recheados com nutella, 1 croissant de peito de peru, 2 brigadeiros gourmet, 1 arranjo de flores ou varal com 4 fotos.',
                     price: 230,
+                    image: 'img/dia-dos-pais/cesta-p-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
                     promotion: true
                 },
                 {
                     id: 'dia-pais-02',
-                    name: 'Cesta café com amor M',
-                    description: 'Bolo de cenoura, suco de Tangerina, chocolate, drip coffee, ovo de leite ninho, folhados de chocolate, croissant de peito de peru, assadinhas napolitano, assadinhas de frango, chocolate belga, mini pães de batata de requeijão, brownie charge, geleia de frutas vermelhas, antepasto, brigadeiros gourmet, biscoitinhos de parmesão e pimenta, mini pastéis assados, torcidinhos de ciabatta, mel, arranjo de flores.',
+                    name: 'Cesta Café com Amor M',
+                    description: '1 bolo de cenoura, 1 suco de tangerina, 1 chocoleite, 1 drip coffee, 1 pão de leite ninho, 2 folhados de chocolate, 2 Cookies recheados, 3 Assadinhos napolitano, 4 Assadinhos de frango, 3 Mini pães brioche, 2 Mini pães de batata de requeijão, 2 croissant de peito de peru, 1 geleia de frutas vermelhas, 2 biscoitos recheados com Nutella, 4 biscoitinhos de parmesão e pimenta, 1 caixa com 4 brigadeiros gourmet, 1 brownie charge, 2 mini pastéis assados de linguiça Blumenau, 2 torcidinhos de ciabatta de calabresa, 1 pote com uva, 1 arranjo de flores ou varal com 5 fotos.',
                     price: 290,
+                    image: 'img/dia-dos-pais/cesta-m-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
                     promotion: true
                 },
                 {
                     id: 'dia-pais-03',
-                    name: 'Cesta amor de pai G',
-                    description: 'Bolo de cenoura, suco de Tangerina, chocolate, ovo de leite ninho, folhado de chocolate, drip coffee, assadinhas de napolitano, mini pães de batata, mini pastel assado de língua Blumenau, biscoitos recheados com nutella, croissant de peito de peru, brigadeiros gourmet, arranjo de flores.',
+                    name: 'Cesta Amor de Pai G',
+                    description: '1 bolo de cenoura, 1 suco de tangerina, 1 chocoleite, 2 drip coffee, 1 capuccino, 1 pão de leite ninho, 2 mini pães de batata de requeijão, 2 croissant de peito de Peru, 3 cookies recheados, 2 folhados de chocolate, 4 Mini pães brioche, 4 Assadinhos napolitano, 5 Assadinhos de frango, 2 torcidinhos de ciabatta com calabresa, 1 geleia de frutas vermelhas, 1 antepasto de berinjela, azeitona e abobrinha, 1 caixa com 6 brigadeiros gourmet, 1 baguete, 1 brownie charge, 2 biscoitos recheados com nutella, 6 biscoitinhos de parmesão e pimenta, 3 mini pastéis assados de linguiça Blumenau, 2 esfirra de carne, 1 pote com uva, 1 focaccia com tomate e alecrim, 1 arranjo de flores ou varal com 6 fotos.',
                     price: 390,
+                    image: 'img/dia-dos-pais/cesta-g-1.png',
                     emoji: '💙',
                     category: 'dia-pais',
                     promotion: true
                 },
                 {
                     id: 'dia-pais-04',
-                    name: 'Cesta amor de pai G com bolo Bentô',
-                    description: 'Bolo de cenoura, suco de Tangerina, chocolate, ovo de leite ninho, folhado de chocolate, drip coffee, assadinhas de napolitano, mini pães de batata, mini pastel assado de língua Blumenau, biscoitos recheados com nutella, croissant de peito de peru, brigadeiros gourmet, arranjo de flores + bolo Bentô personalizado.',
+                    name: 'Cesta Amor de Pai G com Bolo Bentô',
+                    description: '1 bolo bentô, 1 suco de tangerina, 1 chocoleite, 2 drip coffee, 1 capuccino, 1 pão de leite ninho, 2 mini pães de batata de requeijão, 2 croissant de peito de Peru, 3 cookies recheados, 2 folhados de chocolate, 4 Mini pães brioche, 4 Assadinhos napolitano, 5 Assadinhos de frango, 2 torcidinhos de ciabatta com calabresa, 1 geleia de frutas vermelhas, 1 antepasto de berinjela, azeitona e abobrinha, 1 caixa com 6 brigadeiros gourmet, 1 baguete, 1 brownie charge, 2 biscoitos recheados com nutella, 6 biscoitinhos de parmesão e pimenta, 3 mini pastéis assados de linguiça Blumenau, 2 esfirra de carne, 1 pote com uva, 1 focaccia com tomate e alecrim, 1 arranjo de flores ou varal com 6 fotos.',
                     price: 450,
+                    image: 'img/dia-dos-pais/cesta-g-bento.png',
                     emoji: '💙',
                     category: 'dia-pais',
                     promotion: true
@@ -1412,15 +1415,11 @@
             
             const updates = {};
             diaDosPaisProducts.forEach(product => {
-                if (!existingNames.includes(product.name)) {
-                    updates['products/' + product.id] = product;
-                }
+                updates['products/' + product.id] = product;
             });
             
-            if (Object.keys(updates).length > 0) {
-                await db.ref().update(updates);
-                console.log('Produtos Dia dos Pais adicionados ao Firebase');
-            }
+            await db.ref().update(updates);
+            console.log('Produtos Dia dos Pais atualizados no Firebase');
             
             return diaDosPaisProducts;
         }

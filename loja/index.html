@@ -1419,26 +1419,27 @@
                 }
             ];
             
-            // First: get ALL products to find duplicates
+            // Step 1: Delete ALL existing dia-pais products first
             const snapshot = await db.ref('products').once('value');
             const existing = snapshot.val() || {};
-            
-            // Build updates: set new products + remove ALL old amor de pai duplicates
-            const updates = {};
-            diaDosPaisProducts.forEach(product => {
-                updates['products/' + product.id] = product;
-            });
-            
-            // Remove ANY old product with "amor de pai" or "amor de pai" in name
+            const toDelete = {};
             Object.entries(existing).forEach(([key, prod]) => {
-                const name = (prod.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-                if ((name.includes('amor de pai') || name.includes('cafe com amor') || name.includes('café com amor')) && !key.startsWith('dia-pais-')) {
-                    updates['products/' + key] = null;
+                const name = (prod.name || '').toLowerCase();
+                const cat = prod.category || '';
+                if (cat === 'dia-pais' || name.includes('amor de pai') || name.includes('cesta amor') || name.includes('cafe com amor') || name.includes('café com amor')) {
+                    toDelete['products/' + key] = null;
                 }
             });
+            if (Object.keys(toDelete).length > 0) {
+                await db.ref().update(toDelete);
+            }
             
-            await db.ref().update(updates);
-            console.log('Produtos Dia dos Pais atualizados');
+            // Step 2: Add the new products
+            const toAdd = {};
+            diaDosPaisProducts.forEach(product => {
+                toAdd['products/' + product.id] = product;
+            });
+            await db.ref().update(toAdd);
             
             return diaDosPaisProducts;
         }

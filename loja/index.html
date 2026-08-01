@@ -1228,8 +1228,9 @@
             document.getElementById('page-home').style.display = 'block';
             document.getElementById('page-catalog').style.display = 'none';
             document.getElementById('page-checkout').style.display = 'none';
-            renderProducts(allProducts.slice(0, 6), 'featured-grid');
-            renderProducts(allProducts, 'all-grid');
+            const sorted = [...allProducts].sort((a, b) => (a.order || 99) - (b.order || 99));
+            renderProducts(sorted.slice(0, 6), 'featured-grid');
+            renderProducts(sorted, 'all-grid');
         }
 
         function showCatalog(cat) {
@@ -1247,6 +1248,7 @@
             if (currentFilter !== 'all') {
                 filtered = allProducts.filter(p => getCategory(p) === currentFilter);
             }
+            filtered.sort((a, b) => (a.order || 99) - (b.order || 99));
             renderProducts(filtered, 'catalog-grid');
             document.querySelectorAll('#filter-btns-2 .filter-btn').forEach(b => {
                 b.classList.remove('active');

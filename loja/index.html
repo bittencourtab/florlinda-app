@@ -1419,22 +1419,26 @@
                 }
             ];
             
+            // First: get ALL products to find duplicates
+            const snapshot = await db.ref('products').once('value');
+            const existing = snapshot.val() || {};
+            
+            // Build updates: set new products + remove ALL old amor de pai duplicates
             const updates = {};
             diaDosPaisProducts.forEach(product => {
                 updates['products/' + product.id] = product;
             });
             
-            // Remove old duplicates
-            const snapshot = await db.ref('products').once('value');
-            const existing = snapshot.val() || {};
+            // Remove ANY old product with "amor de pai" or "amor de pai" in name
             Object.entries(existing).forEach(([key, prod]) => {
-                if (prod.name && prod.name.toLowerCase().includes('amor de pai') && !prod.id?.startsWith('dia-pais-')) {
+                const name = (prod.name || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                if ((name.includes('amor de pai') || name.includes('cafe com amor') || name.includes('café com amor')) && !key.startsWith('dia-pais-')) {
                     updates['products/' + key] = null;
                 }
             });
             
             await db.ref().update(updates);
-            console.log('Produtos Dia dos Pais atualizados no Firebase');
+            console.log('Produtos Dia dos Pais atualizados');
             
             return diaDosPaisProducts;
         }

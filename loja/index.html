@@ -1451,7 +1451,7 @@
         seedDiaDosPais().then(() => {
             db.ref('products').once('value', snap => {
                 allProducts = snap.val() ? Object.values(snap.val()) : [];
-                allProducts.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                allProducts.sort((a, b) => (a.order || 99) - (b.order || 99));
                 renderFilters('filter-btns');
                 renderFilters('filter-btns-2');
                 showHome();

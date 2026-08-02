@@ -1721,15 +1721,15 @@
                 `🌸 *Novo pedido Site Florlinda*\n\n` +
                 cart.map(i => `• ${i.name} x${i.qty} - ${formatPrice(i.price * i.qty)}`).join('\n') +
                 `\n\n💰 Total: ${formatPrice(total)}` +
-                `\n\n👤 *Dados do cliente:*` +
-                `\n📱 Nome: ${name}` +
-                `\n📱 Telefone: ${phone}` +
-                `\n📍 Endereço: ${address}` +
+                `\n\n👤 *Cliente:*` +
+                `Nome: ${name}` +
+                `Telefone: ${phone}` +
                 `\n\n👤 *Recebedor:*` +
-                `\n📱 Nome: ${receiverName}` +
-                `\n📱 Telefone: ${receiverPhone}` +
+                `Nome: ${receiverName}` +
+                `Telefone: ${receiverPhone}` +
+                `Endereço: ${address}` +
                 `\n\n💳 Pagamento: ${selectedPayment}` +
-                `\n📅 Entrega: ${deliveryDate}` +
+                `📅 Entrega: ${deliveryDate}` +
                 (cardMessage ? `\n💌 Msg: ${cardMessage}` : '')
             );
             window.open(`https://wa.me/5548996725990?text=${whatsappMsg}`, '_blank');

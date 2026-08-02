@@ -1,4 +1,4 @@
-const CACHE_NAME = 'florlinda-v27';
+const CACHE_NAME = 'florlinda-v28';
 const urlsToCache = ['app-pedidos.html', 'manifest.json', 'img/logo-white.png'];
 
 self.addEventListener('install', event => {

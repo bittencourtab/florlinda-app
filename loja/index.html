@@ -1721,10 +1721,14 @@
                 `🌸 *Novo pedido Site Florlinda*\n\n` +
                 cart.map(i => `• ${i.name} x${i.qty} - ${formatPrice(i.price * i.qty)}`).join('\n') +
                 `\n\n💰 Total: ${formatPrice(total)}` +
+                `\n\n👤 *Dados do cliente:*` +
+                `\n📱 Nome: ${name}` +
+                `\n📱 Telefone: ${phone}` +
                 `\n📍 Endereço: ${address}` +
-                `\n👤 Recebedor: ${receiverName}` +
-                `\n📱 Tel: ${receiverPhone}` +
-                `\n💳 Pagamento: ${selectedPayment}` +
+                `\n\n👤 *Recebedor:*` +
+                `\n📱 Nome: ${receiverName}` +
+                `\n📱 Telefone: ${receiverPhone}` +
+                `\n\n💳 Pagamento: ${selectedPayment}` +
                 `\n📅 Entrega: ${deliveryDate}` +
                 (cardMessage ? `\n💌 Msg: ${cardMessage}` : '')
             );

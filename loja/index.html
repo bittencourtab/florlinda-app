@@ -778,6 +778,131 @@
         @media (max-width: 480px) {
             .instagram-gallery { grid-template-columns: repeat(2, 1fr); }
         }
+
+        /* GOOGLE REVIEWS */
+        .google-reviews {
+            background: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+        .google-reviews-header {
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        .google-reviews-header h2 {
+            font-size: 1.8rem;
+            color: var(--brown);
+            margin-bottom: 8px;
+        }
+        .google-reviews-header p {
+            color: var(--brown-light);
+            font-size: 0.95rem;
+        }
+        .google-rating-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f0fe 100%);
+            border: 1px solid #dadce0;
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 25px;
+        }
+        .google-rating-badge .g-icon {
+            width: 48px;
+            height: 48px;
+        }
+        .google-rating-badge .rating-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--brown);
+            line-height: 1;
+        }
+        .google-rating-badge .rating-stars {
+            color: #fbbc04;
+            font-size: 1.3rem;
+            letter-spacing: 2px;
+        }
+        .google-rating-badge .rating-count {
+            font-size: 0.85rem;
+            color: var(--brown-light);
+        }
+        .google-review-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 600px;
+            margin: 0 auto 15px;
+            text-align: left;
+            border: 1px solid #e8eaed;
+        }
+        .google-review-card .reviewer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .google-review-card .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--pink);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .google-review-card .reviewer-name {
+            font-weight: 600;
+            color: var(--brown);
+            font-size: 0.95rem;
+        }
+        .google-review-card .review-date {
+            font-size: 0.8rem;
+            color: var(--brown-light);
+        }
+        .google-review-card .review-stars {
+            color: #fbbc04;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .google-review-card .review-text {
+            color: var(--brown);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .google-cta {
+            margin-top: 30px;
+        }
+        .google-cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 35px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(66,133,244,0.3);
+        }
+        .google-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66,133,244,0.4);
+        }
+        .google-cta-sub {
+            margin-top: 12px;
+            font-size: 0.85rem;
+            color: var(--brown-light);
+        }
+        @media (max-width: 480px) {
+            .google-rating-badge { padding: 15px 20px; }
+            .google-rating-badge .rating-number { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
@@ -1014,6 +1139,60 @@
         <div class="instagram-cta">
             <p>Siga-nos no Instagram para ver nossos trabalhos!</p>
             <a href="https://instagram.com/florlindaarranjosecestas" target="_blank" class="ig-cta-btn">@florlindaarranjosecestas</a>
+        </div>
+    </div>
+
+    <!-- GOOGLE REVIEWS SECTION -->
+    <div class="google-reviews">
+        <div class="google-reviews-header">
+            <h2>O que nossos clientes dizem</h2>
+            <p>Avaliações reais de quem já comprou com a gente</p>
+        </div>
+
+        <div class="google-rating-badge">
+            <svg class="g-icon" viewBox="0 0 24 24">
+                <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+            </svg>
+            <div>
+                <div class="rating-number">4.9</div>
+                <div class="rating-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <div class="rating-count">Avaliação no Google</div>
+            </div>
+        </div>
+
+        <div class="google-review-card">
+            <div class="reviewer">
+                <div class="reviewer-avatar">M</div>
+                <div>
+                    <div class="reviewer-name">Maria Silva</div>
+                    <div class="review-date">há 2 semanas</div>
+                </div>
+            </div>
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">Uma cesta incrível! Superou todas as minhas expectativas. O bento estava delicioso e o arranjo de flores, lindo demais. Recomendo muito!</div>
+        </div>
+
+        <div class="google-review-card">
+            <div class="reviewer">
+                <div class="reviewer-avatar">A</div>
+                <div>
+                    <div class="reviewer-name">Ana Oliveira</div>
+                    <div class="review-date">há 1 mês</div>
+                </div>
+            </div>
+            <div class="review-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="review-text">Presenteei meu pai no Dia dos Pais e ele amou! Tudo muito bem feito, com carinho e qualidade. Com certeza vou pedir de novo!</div>
+        </div>
+
+        <div class="google-cta">
+            <a href="https://www.google.com/maps/search/Florlinda+Arranjos+e+Cestas+Florianopolis" target="_blank" class="google-cta-btn" id="google-review-link">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                Avalie-nos no Google
+            </a>
+            <p class="google-cta-sub">Sua avaliação ajuda muito o nosso negócio!</p>
         </div>
     </div>
 

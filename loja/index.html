@@ -138,6 +138,7 @@
             height: 200%;
             background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
             animation: shimmer 8s ease-in-out infinite;
+            pointer-events: none;
         }
         @keyframes shimmer {
             0%, 100% { transform: translateX(-30%) translateY(-30%); }
@@ -1364,7 +1365,7 @@
                 `Pedido enviado com sucesso! 🌸<br><br>` +
                 `<strong>Seu pedido só será confirmado após o pagamento.</strong><br><br>` +
                 `Faça o pagamento via <strong>${selectedPayment.toUpperCase()}</strong> e envie o comprovante pelo WhatsApp.`;
-            confirmModal.classList.add('active');
+            document.getElementById('confirm-modal').classList.add('active');
 
             showHome();
         }
@@ -1376,6 +1377,10 @@
 
         function closePixModal() {
             document.getElementById('pix-modal').classList.remove('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirm-modal').classList.remove('active');
         }
 
         document.getElementById('product-modal').addEventListener('click', function(e) {
@@ -1464,6 +1469,15 @@
                 showHome();
                 updateCartCount();
             });
+        }).catch(() => {
+            db.ref('products').once('value', snap => {
+                allProducts = snap.val() ? Object.values(snap.val()) : [];
+                allProducts.sort((a, b) => (a.order || 99) - (b.order || 99));
+                renderFilters('filter-btns');
+                renderFilters('filter-btns-2');
+                showHome();
+                updateCartCount();
+            });
         });
 
         if ('serviceWorker' in navigator) {
@@ -1471,7 +1485,9 @@
                 regs.forEach(r => r.unregister());
             });
         }
-        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+        if ('caches' in window) {
+            caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+        }
     </script>
 </body>
 </html>

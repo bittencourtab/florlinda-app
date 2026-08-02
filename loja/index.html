@@ -3,8 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Florlinda - Arranjos e Cestas</title>
-    <meta name="description" content="Arranjos, cestas e presentes especiais. Encomende pelo WhatsApp!">
+    <title>Florlinda - Arranjos e Cestas | Floricultura em Florianópolis</title>
+    <meta name="description" content="Florlinda - Arranjos e Cestas artesanais em Florianópolis/SC. Cestas de café, box de flores, bolos e presentes para ocasiões especiais. Peça pelo WhatsApp!">
+    <meta name="keywords" content="floricultura florianópolis, arranjos de flores, cestas de café, cesta de presente, florlinda, box de flores, bolo bento, dia dos pais, dia das mães">
+    <meta name="author" content="Florlinda Arranjos e Cestas">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Florlinda - Arranjos e Cestas | Floricultura em Florianópolis">
+    <meta property="og:description" content="Arranjos e cestas artesanais feitos com amor em Florianópolis. Cestas de café, box de flores e presentes especiais.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://florlindacestas.github.io/loja/">
+    <meta property="og:locale" content="pt_BR">
+    <link rel="canonical" href="https://florlindacestas.github.io/loja/">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Florist",
+        "name": "Florlinda Arranjos e Cestas",
+        "description": "Arranjos e cestas artesanais em Florianópolis. Cestas de café, box de flores, bolos e presentes para ocasiões especiais.",
+        "url": "https://florlindacestas.github.io/loja/",
+        "telephone": "+5548996725990",
+        "priceRange": "$$",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Florianópolis",
+            "addressRegion": "SC",
+            "addressCountry": "BR"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": -27.5954,
+            "longitude": -48.5480
+        },
+        "areaServed": {
+            "@type": "City",
+            "name": "Florianópolis"
+        },
+        "sameAs": [
+            "https://www.instagram.com/florlindaarranjosecestas",
+            "https://wa.me/5548996725990"
+        ],
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+                "opens": "08:00",
+                "closes": "18:00"
+            }
+        ],
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.9",
+            "reviewCount": "50",
+            "bestRating": "5"
+        }
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -903,6 +957,106 @@
             .google-rating-badge { padding: 15px 20px; }
             .google-rating-badge .rating-number { font-size: 2rem; }
         }
+
+        /* MAP & CONTATO */
+        .map-section {
+            background: white;
+            padding: 50px 20px;
+        }
+        .map-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .map-info h2 {
+            font-size: 1.8rem;
+            color: var(--brown);
+            margin-bottom: 20px;
+        }
+        .map-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .map-info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .map-info-item h4 {
+            font-size: 0.95rem;
+            color: var(--brown);
+            margin-bottom: 3px;
+            font-family: 'Poppins', sans-serif;
+        }
+        .map-info-item p {
+            font-size: 0.85rem;
+            color: var(--brown-light);
+        }
+        .map-embed {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            min-height: 300px;
+        }
+        .map-embed iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 300px;
+            border: 0;
+        }
+
+        /* WHATSAPP REVIEW REQUEST */
+        .whatsapp-review {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .whatsapp-review h2 {
+            font-size: 1.6rem;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .whatsapp-review p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 25px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .whatsapp-review-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 35px;
+            background: white;
+            color: #25d366;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .whatsapp-review-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .map-container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -1194,6 +1348,56 @@
             </a>
             <p class="google-cta-sub">Sua avaliação ajuda muito o nosso negócio!</p>
         </div>
+    </div>
+
+    <!-- MAP & CONTATO -->
+    <div class="map-section">
+        <div class="map-container">
+            <div class="map-info">
+                <h2>Onde estamos</h2>
+                <div class="map-info-item">
+                    <div class="map-info-icon" style="background:#e8f5e9;">📍</div>
+                    <div>
+                        <h4>Endereço</h4>
+                        <p>Florianópolis - SC</p>
+                    </div>
+                </div>
+                <div class="map-info-item">
+                    <div class="map-info-icon" style="background:#e3f2fd;">📱</div>
+                    <div>
+                        <h4>WhatsApp</h4>
+                        <p>(48) 99672-5990</p>
+                    </div>
+                </div>
+                <div class="map-info-item">
+                    <div class="map-info-icon" style="background:#fce4ec;">📷</div>
+                    <div>
+                        <h4>Instagram</h4>
+                        <p>@florlindaarranjosecestas</p>
+                    </div>
+                </div>
+                <div class="map-info-item">
+                    <div class="map-info-icon" style="background:#f3e5f5;">🕐</div>
+                    <div>
+                        <h4>Horário</h4>
+                        <p>Seg-Sáb: 08h às 18h</p>
+                    </div>
+                </div>
+            </div>
+            <div class="map-embed">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d57507.29847723855!2d-48.5480!3d-27.5954!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x952737a1f3a6e5af%3A0x1b03c0b3e4a5b8e5!2sFlorian%C3%B3polis%2C%20SC!5e0!3m2!1spt-BR!2sbr!4v1700000000000!5m2!1spt-BR!2sbr" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- WHATSAPP REVIEW REQUEST -->
+    <div class="whatsapp-review">
+        <h2>Gostou do nosso trabalho?</h2>
+        <p>Sua avaliação no Google ajuda muito nosso negócio e ajuda outras pessoas a nos encontrarem!</p>
+        <a href="https://wa.me/5548996725990?text=Ol%C3%A1!%20Gostaria%20de%20avaliar%20a%20Florlinda%20no%20Google.%20Pode%20me%20enviar%20o%20link?" target="_blank" class="whatsapp-review-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Pedir link de avaliação
+        </a>
     </div>
 
     <footer>

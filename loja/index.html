@@ -1706,6 +1706,25 @@
                 });
             }
 
+            fetch('https://hook.us2.make.com/yqpqlou1wmyaib4p6vp7pt6bshfdvt3u', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'novo_pedido',
+                    produtos: cart.map(i => `${i.name} x${i.qty} - ${formatPrice(i.price * i.qty)}`).join(', '),
+                    total: formatPrice(total),
+                    cliente_nome: name,
+                    cliente_telefone: phone,
+                    recebedor_nome: receiverName,
+                    recebedor_telefone: receiverPhone,
+                    endereco: address,
+                    pagamento: selectedPayment,
+                    entrega: deliveryDate,
+                    mensagem: cardMessage || '',
+                    data: new Date().toISOString()
+                })
+            }).catch(e => console.error('Webhook error:', e));
+
             const whatsappMsg = encodeURIComponent(
                 `🌸 *Novo pedido Site Florlinda*\n\n` +
                 cart.map(i => `• ${i.name} x${i.qty} - ${formatPrice(i.price * i.qty)}`).join('\n') +

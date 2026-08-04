@@ -1370,35 +1370,12 @@
 
         // SALVAR NO FIREBASE
         function save() {
-            // Salvar pedidos via API do bot
-            data.orders.forEach(order => {
-                fetch('http://localhost:3000/api/orders', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(order)
-                }).catch(err => console.log('Erro ao salvar pedido:', err));
-            });
-            
-            // Salvar clientes via API do bot
-            data.clients.forEach(client => {
-                fetch('http://localhost:3000/api/clients', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(client)
-                }).catch(err => console.log('Erro ao salvar cliente:', err));
-            });
-            
-            // Tentar salvar direto no Firebase também
-            try {
-                db.ref('orders').set(data.orders);
-                db.ref('products').set(data.products);
-                db.ref('clients').set(data.clients);
-                db.ref('finance').set(data.finance);
-                db.ref('drivers').set(data.drivers);
-                db.ref('deliveries').set(data.deliveries);
-            } catch (e) {
-                console.log('Erro ao salvar direto no Firebase:', e);
-            }
+            db.ref('orders').set(data.orders);
+            db.ref('products').set(data.products);
+            db.ref('clients').set(data.clients);
+            db.ref('finance').set(data.finance);
+            db.ref('drivers').set(data.drivers);
+            db.ref('deliveries').set(data.deliveries);
         }
 
         function seedProducts() {

@@ -1613,12 +1613,6 @@
             }
             filtered.sort((a, b) => (a.order || 99) - (b.order || 99));
             renderProducts(filtered, 'catalog-grid');
-            document.querySelectorAll('#filter-btns-2 .filter-btn').forEach(b => {
-                b.classList.remove('active');
-                if ((currentFilter === 'all' && b.textContent === 'Todos') || b.textContent === CATEGORIES[currentFilter]) {
-                    b.classList.add('active');
-                }
-            });
             renderFilters('filter-btns-2');
             document.querySelectorAll('#filter-btns-2 .filter-btn').forEach(b => {
                 if ((currentFilter === 'all' && b.textContent === 'Todos') || b.textContent === CATEGORIES[currentFilter]) {

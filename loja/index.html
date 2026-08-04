@@ -1585,6 +1585,9 @@
                 filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));
             }
             filtered.sort((a, b) => (a.order || 99) - (b.order || 99));
+            if (document.getElementById('page-home').style.display !== 'none') {
+                renderProducts(filtered, 'all-grid');
+            }
             renderProducts(filtered, 'catalog-grid');
         }
 

@@ -1756,6 +1756,9 @@
             );
             window.open(`https://wa.me/5548996725990?text=${whatsappMsg}`, '_blank');
 
+            // Rastrear conversão de pedido
+            trackOrderConversion(total);
+
             cart = [];
             updateCartCount();
 
@@ -1886,6 +1889,31 @@
         }
         if ('caches' in window) {
             caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(()=>{});
+        }
+
+        // Rastreamento de conversão WhatsApp
+        document.addEventListener('click', function(e) {
+            const link = e.target.closest('a[href*="wa.me"], a[href*="whatsapp"]');
+            if (link && typeof gtag === 'function') {
+                gtag('event', 'conversion', {
+                    'send_to': 'G-8YVKJP71WF/whatsapp_click',
+                    'event_category': 'engagement',
+                    'event_label': 'WhatsApp Click'
+                });
+                console.log(' conversão WhatsApp rastreada');
+            }
+        });
+
+        // Rastreamento de envio de pedido
+        function trackOrderConversion(value) {
+            if (typeof gtag === 'function') {
+                gtag('event', 'purchase', {
+                    'currency': 'BRL',
+                    'value': value || 0,
+                    'send_to': 'G-8YVKJP71WF'
+                });
+                console.log(' conversão de pedido rastreada: R$' + value);
+            }
         }
     </script>
 </body>

@@ -1309,19 +1309,7 @@
         let lastOrderCount = 0;
 
         function startOrderListener() {
-            db.ref('orders').on('child_added', (snap) => {
-                const order = snap.val();
-                if (order && order.source === 'whatsapp' && order.createdAt) {
-                    const orderTime = new Date(order.createdAt).getTime();
-                    const now = Date.now();
-                    if (now - orderTime < 30000) {
-                        const product = data.products.find(p => p.id === order.productId);
-                        const productName = product ? product.name : 'Produto';
-                        const value = order.value ? `R$ ${order.value.toFixed(2)}` : '';
-                        showNewOrderNotification(productName, value, order.receiverName || '');
-                    }
-                }
-            });
+            // Disabled - using REST API instead of Firebase SDK
         }
 
         function showNewOrderNotification(product, value, receiver) {
@@ -2986,11 +2974,11 @@
 
         // INICIAR - CARREGAR DADOS DO FIREBASE
         loadData().then(() => {
-            seedProducts();
-            requestNotificationPermission();
+            try { seedProducts(); } catch(e) { console.error('Seed:', e); }
+            try { requestNotificationPermission(); } catch(e) {}
         }).catch(err => {
             console.error('Erro ao carregar dados:', err);
-            refreshAll();
+            try { refreshAll(); } catch(e) {}
         });
 
         // REGISTRAR SERVICE WORKER PARA PWA

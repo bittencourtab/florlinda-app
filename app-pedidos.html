@@ -1368,24 +1368,29 @@
             }
         }
 
-        // SALVAR NO FIREBASE
+        // SALVAR NO FIREBASE via Porteiro
         function save() {
-            try {
-                db.ref('orders').set(data.orders).then(() => {
-                    console.log('Pedidos salvos:', data.orders.length);
-                }).catch(err => {
-                    console.error('Erro ao salvar pedidos:', err);
-                    alert('Erro ao salvar pedidos: ' + err.message);
-                });
-                db.ref('products').set(data.products).catch(err => console.error('Erro ao salvar produtos:', err));
-                db.ref('clients').set(data.clients).catch(err => console.error('Erro ao salvar clientes:', err));
-                db.ref('finance').set(data.finance).catch(err => console.error('Erro ao salvar financeiro:', err));
-                db.ref('drivers').set(data.drivers).catch(err => console.error('Erro ao salvar entregadores:', err));
-                db.ref('deliveries').set(data.deliveries).catch(err => console.error('Erro ao salvar entregas:', err));
-            } catch (e) {
-                console.error('Erro geral ao salvar:', e);
-                alert('Erro ao salvar: ' + e.message);
-            }
+            const API = 'http://localhost:3001/api/save';
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: 'orders', data: data.orders })
+            });
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: 'clients', data: data.clients })
+            });
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: 'finance', data: data.finance })
+            });
+            fetch(API, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: 'deliveries', data: data.deliveries })
+            });
         }
 
         function seedProducts() {

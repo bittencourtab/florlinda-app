@@ -1283,26 +1283,27 @@
         let currentFinanceFilter = 'all';
         let currentDeliveryDate = 'today';
 
-        // CARREGAR DADOS DO FIREBASE
-        function loadData() {
-            return Promise.all([
-                db.ref('orders').once('value'),
-                db.ref('products').once('value'),
-                db.ref('clients').once('value'),
-                db.ref('finance').once('value'),
-                db.ref('drivers').once('value'),
-                db.ref('deliveries').once('value')
-            ]).then(([ordersSnap, productsSnap, clientsSnap, financeSnap, driversSnap, deliveriesSnap]) => {
-                data.orders = ordersSnap.val() ? Object.values(ordersSnap.val()) : [];
-                data.products = productsSnap.val() ? Object.values(productsSnap.val()) : [];
-                data.clients = clientsSnap.val() ? Object.values(clientsSnap.val()) : [];
-                data.finance = financeSnap.val() ? Object.values(financeSnap.val()) : [];
-                data.drivers = driversSnap.val() ? Object.values(driversSnap.val()) : [];
-                data.deliveries = deliveriesSnap.val() ? Object.values(deliveriesSnap.val()) : [];
+        // CARREGAR DADOS via REST API
+        const DB_URL = 'https://florlinda-184ec-default-rtdb.firebaseio.com';
+        
+        async function loadData() {
+            try {
+                const paths = ['orders','products','clients','finance','drivers','deliveries'];
+                const results = await Promise.all(paths.map(p => 
+                    fetch(`${DB_URL}/${p}.json`).then(r => r.json())
+                ));
+                const [o, p, c, f, d, de] = results;
+                data.orders = o ? Object.values(o) : [];
+                data.products = p ? Object.values(p) : [];
+                data.clients = c ? Object.values(c) : [];
+                data.finance = f ? Object.values(f) : [];
+                data.drivers = d ? Object.values(d) : [];
+                data.deliveries = de ? Object.values(de) : [];
                 lastOrderCount = data.orders.length;
                 refreshAll();
-                startOrderListener();
-            });
+            } catch(e) {
+                console.error('Erro ao carregar:', e);
+            }
         }
 
         let lastOrderCount = 0;

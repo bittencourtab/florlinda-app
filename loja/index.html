@@ -1395,7 +1395,6 @@
         let currentQty = 1;
         let selectedPayment = 'pix';
         let currentFilter = 'all';
-        let activeFilters = new Set(['all']);
         let scrollTimeout = null;
 
         window.addEventListener('scroll', () => {
@@ -1565,38 +1564,22 @@
         function renderFilters(containerId) {
             const cats = new Set(allProducts.map(p => getCategory(p)));
             const container = document.getElementById(containerId);
-            container.innerHTML = `<button class="filter-btn active" data-cat="all" onclick="applyFilter('all', this)">Todos</button>` +
-                [...cats].map(c => `<button class="filter-btn" data-cat="${c}" onclick="applyFilter('${c}', this)">${CATEGORIES[c] || c}</button>`).join('');
+            container.innerHTML = `<button class="filter-btn active" onclick="applyFilter('all', this)">Todos</button>` +
+                [...cats].map(c => `<button class="filter-btn" onclick="applyFilter('${c}', this)">${CATEGORIES[c] || c}</button>`).join('');
         }
 
         function applyFilter(cat, btn) {
-            if (cat === 'all') {
-                activeFilters = new Set(['all']);
-            } else {
-                activeFilters.delete('all');
-                if (activeFilters.has(cat)) {
-                    activeFilters.delete(cat);
-                    if (activeFilters.size === 0) activeFilters.add('all');
-                } else {
-                    activeFilters.add(cat);
-                }
-            }
-            document.querySelectorAll('.filter-btn').forEach(b => {
-                const filterCat = b.getAttribute('data-cat');
-                if (activeFilters.has(filterCat)) {
-                    b.classList.add('active');
-                } else {
-                    b.classList.remove('active');
-                }
-            });
+            currentFilter = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
             filterProducts(document.querySelector('.search-box')?.value || '');
         }
 
         function filterProducts(query) {
             const q = query.toLowerCase();
             let filtered = allProducts;
-            if (!activeFilters.has('all')) {
-                filtered = filtered.filter(p => activeFilters.has(getCategory(p)));
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => getCategory(p) === currentFilter);
             }
             if (q) {
                 filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q));

@@ -1828,27 +1828,36 @@
                 }
             ];
             
-            // Step 1: Delete ALL existing dia-pais products first
-            const snapshot = await db.ref('products').once('value');
-            const existing = snapshot.val() || {};
-            const toDelete = {};
-            Object.entries(existing).forEach(([key, prod]) => {
-                const name = (prod.name || '').toLowerCase();
-                const cat = prod.category || '';
-                if (cat === 'dia-pais' || name.includes('amor de pai') || name.includes('cesta amor') || name.includes('cafe com amor') || name.includes('café com amor')) {
-                    toDelete['products/' + key] = null;
+            try {
+                const snapshot = await db.ref('products').once('value');
+                const existing = snapshot.val() || {};
+                const existingIds = Object.keys(existing);
+                const needsUpdate = diaDosPaisProducts.some(p => !existingIds.includes(p.id));
+                
+                if (!needsUpdate) {
+                    return diaDosPaisProducts;
                 }
-            });
-            if (Object.keys(toDelete).length > 0) {
-                await db.ref().update(toDelete);
+
+                const toDelete = {};
+                Object.entries(existing).forEach(([key, prod]) => {
+                    const name = (prod.name || '').toLowerCase();
+                    const cat = prod.category || '';
+                    if (cat === 'dia-pais' || name.includes('amor de pai') || name.includes('cesta amor') || name.includes('cafe com amor') || name.includes('café com amor')) {
+                        toDelete['products/' + key] = null;
+                    }
+                });
+                if (Object.keys(toDelete).length > 0) {
+                    await db.ref().update(toDelete);
+                }
+                
+                const toAdd = {};
+                diaDosPaisProducts.forEach(product => {
+                    toAdd['products/' + product.id] = product;
+                });
+                await db.ref().update(toAdd);
+            } catch (err) {
+                console.log('Seed error:', err);
             }
-            
-            // Step 2: Add the new products
-            const toAdd = {};
-            diaDosPaisProducts.forEach(product => {
-                toAdd['products/' + product.id] = product;
-            });
-            await db.ref().update(toAdd);
             
             return diaDosPaisProducts;
         }

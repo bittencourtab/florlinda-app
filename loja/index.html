@@ -1603,7 +1603,6 @@
             }
             filtered.sort((a, b) => (a.order || 99) - (b.order || 99));
             renderProducts(filtered, 'catalog-grid');
-            renderProducts(filtered.slice(0, 6), 'featured-grid');
         }
 
         function showHome() {
@@ -1611,7 +1610,6 @@
             document.getElementById('page-catalog').style.display = 'none';
             document.getElementById('page-checkout').style.display = 'none';
             const sorted = [...allProducts].sort((a, b) => (a.order || 99) - (b.order || 99));
-            renderProducts(sorted.slice(0, 6), 'featured-grid');
             renderProducts(sorted, 'all-grid');
         }
 

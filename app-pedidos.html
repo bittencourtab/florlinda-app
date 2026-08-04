@@ -1370,12 +1370,22 @@
 
         // SALVAR NO FIREBASE
         function save() {
-            db.ref('orders').set(data.orders);
-            db.ref('products').set(data.products);
-            db.ref('clients').set(data.clients);
-            db.ref('finance').set(data.finance);
-            db.ref('drivers').set(data.drivers);
-            db.ref('deliveries').set(data.deliveries);
+            try {
+                db.ref('orders').set(data.orders).then(() => {
+                    console.log('Pedidos salvos:', data.orders.length);
+                }).catch(err => {
+                    console.error('Erro ao salvar pedidos:', err);
+                    alert('Erro ao salvar pedidos: ' + err.message);
+                });
+                db.ref('products').set(data.products).catch(err => console.error('Erro ao salvar produtos:', err));
+                db.ref('clients').set(data.clients).catch(err => console.error('Erro ao salvar clientes:', err));
+                db.ref('finance').set(data.finance).catch(err => console.error('Erro ao salvar financeiro:', err));
+                db.ref('drivers').set(data.drivers).catch(err => console.error('Erro ao salvar entregadores:', err));
+                db.ref('deliveries').set(data.deliveries).catch(err => console.error('Erro ao salvar entregas:', err));
+            } catch (e) {
+                console.error('Erro geral ao salvar:', e);
+                alert('Erro ao salvar: ' + e.message);
+            }
         }
 
         function seedProducts() {

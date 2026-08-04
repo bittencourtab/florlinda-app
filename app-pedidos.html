@@ -1465,21 +1465,29 @@
         }
 
         // PREENCHER FORMULÁRIO DE PEDIDO
+        let priceListenerAdded = false;
         function populateOrderForm() {
-            const prodSel = document.getElementById('order-product');
-            const driverSel = document.getElementById('order-driver');
-            const valueInput = document.getElementById('order-value');
-            prodSel.innerHTML = data.products.length ? data.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.emoji || ''} ${p.name}</option>`).join('') : '<option value="">Cadastre um produto primeiro</option>';
-            driverSel.innerHTML = data.drivers.length
-                ? data.drivers.map(d => `<option value="${d.id}">${d.name} (${d.vehicle})</option>`).join('')
-                : '<option value="">Cadastre um entregador primeiro</option>';
-            document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
-            valueInput.dataset.manual = '';
-            valueInput.addEventListener('input', function() { this.dataset.manual = '1'; });
-            document.getElementById('order-manual-client').value = '';
-            document.getElementById('order-receiver-name').value = '';
-            document.getElementById('order-receiver-phone').value = '';
-            updateOrderPrice();
+            try {
+                const prodSel = document.getElementById('order-product');
+                const driverSel = document.getElementById('order-driver');
+                const valueInput = document.getElementById('order-value');
+                prodSel.innerHTML = data.products.length ? data.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.emoji || ''} ${p.name}</option>`).join('') : '<option value="">Cadastre um produto primeiro</option>';
+                driverSel.innerHTML = data.drivers.length
+                    ? data.drivers.map(d => `<option value="${d.id}">${d.name} (${d.vehicle})</option>`).join('')
+                    : '<option value="">Cadastre um entregador primeiro</option>';
+                document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
+                valueInput.dataset.manual = '';
+                if (!priceListenerAdded) {
+                    valueInput.addEventListener('input', function() { this.dataset.manual = '1'; });
+                    priceListenerAdded = true;
+                }
+                document.getElementById('order-manual-client').value = '';
+                document.getElementById('order-receiver-name').value = '';
+                document.getElementById('order-receiver-phone').value = '';
+                updateOrderPrice();
+            } catch (e) {
+                console.error('Erro ao popular formulário:', e);
+            }
         }
 
         function toggleManualClient() {

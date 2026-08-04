@@ -872,11 +872,7 @@
             <form onsubmit="saveOrder(event)">
                 <div class="form-group">
                     <label>Cliente</label>
-                    <select id="order-client" onchange="toggleManualClient()"></select>
-                </div>
-                <div class="form-group" id="manual-client-group" style="display:none;">
-                    <label>Nome do Cliente</label>
-                    <input type="text" id="order-manual-client" placeholder="Nome completo do cliente">
+                    <input type="text" id="order-manual-client" placeholder="Nome do cliente" required>
                 </div>
                 <div class="form-group">
                     <label>Produto</label>
@@ -1530,14 +1526,18 @@
         function saveOrder(e) {
             e.preventDefault();
             const driverId = parseInt(document.getElementById('order-driver').value);
-            let clientId = parseInt(document.getElementById('order-client').value);
             const manualName = document.getElementById('order-manual-client').value;
 
-            if (isNaN(clientId) || document.getElementById('order-client').value === 'manual') {
-                if (!manualName.trim()) {
-                    alert('Digite o nome do cliente!');
-                    return;
-                }
+            if (!manualName.trim()) {
+                alert('Digite o nome do cliente!');
+                return;
+            }
+            
+            let clientId;
+            const existingClient = data.clients.find(c => c.name.toLowerCase() === manualName.trim().toLowerCase());
+            if (existingClient) {
+                clientId = existingClient.id;
+            } else {
                 const newClient = { id: Date.now(), name: manualName.trim(), phone: '', address: '' };
                 data.clients.push(newClient);
                 clientId = newClient.id;

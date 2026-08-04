@@ -1368,28 +1368,24 @@
             }
         }
 
-        // SALVAR NO FIREBASE via Porteiro
+        // SALVAR via REST API do Firebase
+        const DB_URL = 'https://florlinda-184ec-default-rtdb.firebaseio.com';
+
         function save() {
-            const API = 'http://localhost:3001/api/save';
-            fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'orders', data: data.orders })
-            });
-            fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'clients', data: data.clients })
-            });
-            fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'finance', data: data.finance })
-            });
-            fetch(API, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ path: 'deliveries', data: data.deliveries })
+            const paths = {
+                orders: data.orders,
+                clients: data.clients,
+                finance: data.finance,
+                deliveries: data.deliveries
+            };
+            Object.entries(paths).forEach(([key, val]) => {
+                fetch(`${DB_URL}/${key}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(val)
+                }).then(r => {
+                    if (!r.ok) return r.text().then(t => { throw new Error(t); });
+                }).catch(e => console.error('Erro ' + key, e.message));
             });
         }
 

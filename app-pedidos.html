@@ -1273,8 +1273,13 @@
             appId: "1:667525922025:web:c075c18ce185f24608c478"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        let db = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch(e) {
+            console.log('Firebase SDK não disponível, usando REST API');
+        }
 
         // DADOS
         let data = { orders: [], products: [], clients: [], finance: [], drivers: [], deliveries: [] };

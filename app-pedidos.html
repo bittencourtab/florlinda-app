@@ -1362,7 +1362,6 @@
         }
 
         // SALVAR via REST API do Firebase
-        const DB_URL = 'https://florlinda-184ec-default-rtdb.firebaseio.com';
 
         function save() {
             const paths = {
@@ -1632,12 +1631,6 @@
             } else {
                 saveOrderData([]);
             }
-
-            save();
-            closeModal('new-order');
-            e.target.reset();
-            refreshAll();
-            alert('Pedido salvo com sucesso!');
         }
 
         function previewProductImage(input, previewId) {

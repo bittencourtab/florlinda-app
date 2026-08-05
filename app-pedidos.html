@@ -2770,7 +2770,8 @@
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 8mm;
+                            padding: 6mm;
+                            overflow: hidden;
                         }
                         
                         .card-10x10 .card-inner {
@@ -2787,12 +2788,15 @@
                         
                         .card-10x10 .card-message {
                             font-family: 'Caveat', cursive;
-                            font-size: 16px;
+                            font-size: 14px;
                             color: #6a5a4a;
-                            line-height: 1.5;
+                            line-height: 1.4;
                             white-space: pre-wrap;
                             word-wrap: break-word;
+                            overflow-wrap: break-word;
                             max-width: 72mm;
+                            max-height: 72mm;
+                            overflow: hidden;
                         }
                         
                         .polaroid-7x9 {
@@ -2830,7 +2834,19 @@
                     <div class="a4-page">
                         ${layout}
                     </div>
-                    ${'<'}script>window.onload = function() { window.print(); }${'>'}${'/'+'script'}
+                    ${'<'}script>
+                        window.onload = function() {
+                            document.querySelectorAll('.card-message').forEach(el => {
+                                let fontSize = 22;
+                                el.style.fontSize = fontSize + 'px';
+                                while (el.scrollHeight > el.clientHeight && fontSize > 8) {
+                                    fontSize -= 1;
+                                    el.style.fontSize = fontSize + 'px';
+                                }
+                            });
+                            setTimeout(function() { window.print(); }, 300);
+                        };
+                    ${'>'}${'/'+'script'}
                 </body>
                 </html>
             `);

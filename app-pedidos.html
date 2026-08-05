@@ -735,6 +735,9 @@
         <button class="btn btn-outline" onclick="printAllProtocols()" id="btn-print-all" style="margin-top:12px; font-size:0.85em; width:100%; background:white;">
             🖨️ Imprimir Protocolos Pendentes
         </button>
+        <button class="btn btn-outline" onclick="resetPrintedProtocols()" style="margin-top:6px; font-size:0.8em; width:100%; background:white;">
+            🔄 Resetar Todos para Reimprimir
+        </button>
 
         <button class="fab" onclick="showModal('new-order')">+</button>
     </div>
@@ -2730,7 +2733,7 @@
                 return;
             }
 
-            const perPage = 4;
+            const perPage = 6;
             const pages = [];
             for (let i = 0; i < pending.length; i += perPage) {
                 pages.push(pending.slice(i, i + perPage));
@@ -2779,17 +2782,17 @@
                 * { margin: 0; padding: 0; box-sizing: border-box; }
                 @page { size: A4 portrait; margin: 8mm; }
                 body { font-family: Arial, sans-serif; font-size: 9px; color: #333; }
-                .a4-page { width: 194mm; height: 277mm; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4mm; padding: 2mm; }
-                .protocol { border: 1.5px solid #c9a0dc; border-radius: 6px; padding: 3mm; overflow: hidden; display: flex; flex-direction: column; }
-                .proto-header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 2mm; margin-bottom: 2mm; }
-                .proto-title { font-size: 12px; font-weight: 800; color: #9b59b6; }
-                .proto-subtitle { font-size: 7px; color: #888; }
-                .proto-num { background: #9b59b6; color: white; padding: 1px 8px; border-radius: 10px; display: inline-block; font-weight: bold; font-size: 9px; margin-top: 2mm; }
-                .proto-section { padding: 1.5mm 0; border-bottom: 1px dashed #eee; }
+                .a4-page { width: 194mm; height: 277mm; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3mm; padding: 2mm; }
+                .protocol { border: 1.5px solid #c9a0dc; border-radius: 6px; padding: 2mm; overflow: hidden; display: flex; flex-direction: column; }
+                .proto-header { text-align: center; border-bottom: 1px solid #eee; padding-bottom: 1mm; margin-bottom: 1mm; }
+                .proto-title { font-size: 10px; font-weight: 800; color: #9b59b6; }
+                .proto-subtitle { font-size: 6px; color: #888; }
+                .proto-num { background: #9b59b6; color: white; padding: 1px 6px; border-radius: 10px; display: inline-block; font-weight: bold; font-size: 8px; margin-top: 1mm; }
+                .proto-section { padding: 1mm 0; border-bottom: 1px dashed #eee; }
                 .proto-section:last-child { border-bottom: none; }
-                .proto-row { margin-bottom: 1mm; line-height: 1.4; }
+                .proto-row { margin-bottom: 0.5mm; line-height: 1.3; font-size: 8px; }
                 .proto-label { color: #9b59b6; font-weight: 600; }
-                .proto-total { font-size: 11px; font-weight: 800; color: #9b59b6; margin-top: 1mm; text-align: right; }
+                .proto-total { font-size: 9px; font-weight: 800; color: #9b59b6; margin-top: 1mm; text-align: right; }
                 @media print { .a4-page { width: 100%; height: auto; gap: 3mm; } }
             </style></head><body>`;
 
@@ -2825,6 +2828,13 @@
             save();
             refreshAll();
             showOrderDetail(id);
+        }
+
+        function resetPrintedProtocols() {
+            if (!confirm('Resetar todos os protocolos para reimprimir?')) return;
+            data.orders.forEach(o => { o.protocolPrinted = false; });
+            save();
+            refreshAll();
         }
 
         function printCard(id) {

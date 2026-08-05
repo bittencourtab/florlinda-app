@@ -1447,10 +1447,15 @@
 
         // MODAIS
         function showModal(name) {
-            document.getElementById('modal-' + name).classList.add('active');
-            if (name === 'new-order') populateOrderForm();
-            if (name === 'new-finance') document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
-            if (name === 'new-delivery') populateDeliveryForm();
+            try {
+                document.getElementById('modal-' + name).classList.add('active');
+                if (name === 'new-order') populateOrderForm();
+                if (name === 'new-finance') document.getElementById('fin-date').value = new Date().toISOString().split('T')[0];
+                if (name === 'new-delivery') populateDeliveryForm();
+            } catch(e) {
+                console.error('Erro ao abrir modal:', e);
+                alert('Erro ao abrir formulário: ' + e.message);
+            }
         }
 
         function closeModal(name) {

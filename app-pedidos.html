@@ -1497,9 +1497,9 @@
                 const driverSel = document.getElementById('order-driver');
                 const valueInput = document.getElementById('order-value');
                 prodSel.innerHTML = data.products.length ? data.products.map(p => `<option value="${p.id}" data-price="${p.price}">${p.emoji || ''} ${p.name}</option>`).join('') : '<option value="">Cadastre um produto primeiro</option>';
-                driverSel.innerHTML = data.drivers.length
+                driverSel.innerHTML = '<option value="0">Sem entregador</option>' + (data.drivers.length
                     ? data.drivers.map(d => `<option value="${d.id}">${d.name} (${d.vehicle})</option>`).join('')
-                    : '<option value="">Cadastre um entregador primeiro</option>';
+                    : '');
                 document.getElementById('order-date').value = new Date().toISOString().split('T')[0];
                 valueInput.dataset.manual = '';
                 if (!priceListenerAdded) {

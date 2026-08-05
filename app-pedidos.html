@@ -1420,13 +1420,17 @@
                 { name: "Cesta Orquídea", price: 260, category: "cesta", emoji: "🌷", stock: 0, description: "" },
                 { name: "Cesta Violeta", price: 190, category: "cesta", emoji: "💜", stock: 0, description: "" },
                 { name: "Mini Bolo", price: 130, category: "acessorio", emoji: "🍰", stock: 0, description: "Somente vendido como adicional das cestas." },
-                { name: "Bolo Bento", price: 75, category: "acessorio", emoji: "🎂", stock: 0, description: "Vendido somente como adicional das cestas." }
+                { name: "Bolo Bento", price: 75, category: "acessorio", emoji: "🎂", stock: 0, description: "Vendido somente como adicional das cestas." },
+                { id: 'dia-pais-04', name: "Cesta Amor de Pai G com Bolo Bentô", price: 450, category: "dia-pais", emoji: "💙", stock: 0, description: "Cesta premium dia dos pais." },
+                { id: 'dia-pais-03', name: "Cesta Amor de Pai G", price: 390, category: "dia-pais", emoji: "💙", stock: 0, description: "Cesta grande dia dos pais." },
+                { id: 'dia-pais-02', name: "Cesta Café com Amor M", price: 290, category: "dia-pais", emoji: "💙", stock: 0, description: "Cesta média dia dos pais." },
+                { id: 'dia-pais-01', name: "Cesta Amor de Pai P", price: 230, category: "dia-pais", emoji: "💙", stock: 0, description: "Cesta pequena dia dos pais." }
             ];
             const existingNames = data.products.map(p => p.name);
-            let id = data.products.length > 0 ? Math.max(...data.products.map(p => p.id)) + 1 : 1;
+            let nextId = data.products.length > 0 ? Math.max(...data.products.map(p => parseInt(p.id) || 0)) + 1 : 1;
             catalog.forEach(p => {
                 if (!existingNames.includes(p.name)) {
-                    p.id = id++;
+                    if (!p.id) p.id = nextId++;
                     data.products.push(p);
                 }
             });
@@ -1559,12 +1563,15 @@
             }
 
             const saveOrderData = (photosBase64) => {
+                const prodSel = document.getElementById('order-product');
+                const selectedProduct = data.products.find(p => String(p.id) === prodSel.value);
                 const orderNum = data.orders.length + 1;
                 const order = {
                     id: Date.now(),
                     orderNumber: orderNum,
                     clientId: clientId,
-                    productId: parseInt(document.getElementById('order-product').value),
+                    productId: prodSel.value,
+                    productName: selectedProduct ? selectedProduct.name : '',
                     qty: parseInt(document.getElementById('order-qty').value),
                     value: parseFloat(document.getElementById('order-value').value),
                     deliveryValue: parseFloat(document.getElementById('order-delivery-value').value) || 0,
@@ -1877,7 +1884,7 @@
         }
 
         function getProductName(id, order) {
-            const p = data.products.find(pr => pr.id === id);
+            const p = data.products.find(pr => String(pr.id) === String(id));
             if (p) return `${p.emoji || ''} ${p.name}`;
             if (order && order.productName) return order.productName;
             return 'Produto removido';
@@ -2916,14 +2923,15 @@
         }
 
         function deleteProduct(id) {
-            const product = data.products.find(p => p.id === id);
-            const ordersUsing = data.orders.filter(o => o.productId === id);
+            const sid = String(id);
+            const product = data.products.find(p => String(p.id) === sid);
+            const ordersUsing = data.orders.filter(o => String(o.productId) === sid);
             if (ordersUsing.length > 0) {
                 alert(`Não é possível excluir: ${ordersUsing.length} pedido(s) usam este produto.`);
                 return;
             }
             if (confirm(`Excluir o produto "${product.name}"?`)) {
-                data.products = data.products.filter(p => p.id !== id);
+                data.products = data.products.filter(p => String(p.id) !== sid);
                 save();
                 refreshAll();
             }
@@ -2975,7 +2983,7 @@
 
         // EDITAR ESTOQUE DO PRODUTO
         function editProductStock(id) {
-            const p = data.products.find(pr => pr.id === id);
+            const p = data.products.find(pr => String(pr.id) === String(id));
             if (!p) return;
             document.getElementById('edit-product-id').value = p.id;
             document.getElementById('edit-product-name').value = p.name;
@@ -2995,8 +3003,8 @@
 
         function saveEditProduct(e) {
             e.preventDefault();
-            const id = parseInt(document.getElementById('edit-product-id').value);
-            const p = data.products.find(pr => pr.id === id);
+            const id = document.getElementById('edit-product-id').value;
+            const p = data.products.find(pr => String(pr.id) === String(id));
             if (!p) return;
             const fileInput = document.getElementById('edit-product-image');
             const saveData = (imageBase64) => {

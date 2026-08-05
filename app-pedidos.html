@@ -1304,6 +1304,7 @@
                 data.drivers = d ? Object.values(d) : [];
                 data.deliveries = de ? Object.values(de) : [];
                 lastOrderCount = data.orders.length;
+                fixOldOrders();
                 refreshAll();
             } catch(e) {
                 console.error('Erro ao carregar:', e);
@@ -1311,6 +1312,20 @@
         }
 
         let lastOrderCount = 0;
+
+        function fixOldOrders() {
+            let changed = false;
+            data.orders.forEach(o => {
+                if (!o.productName || o.productName === '') {
+                    const p = data.products.find(pr => String(pr.id) === String(o.productId));
+                    if (p) {
+                        o.productName = p.name;
+                        changed = true;
+                    }
+                }
+            });
+            if (changed) save();
+        }
 
         function startOrderListener() {
             // Disabled - using REST API instead of Firebase SDK
@@ -1884,9 +1899,9 @@
         }
 
         function getProductName(id, order) {
+            if (order && order.productName) return order.productName;
             const p = data.products.find(pr => String(pr.id) === String(id));
             if (p) return `${p.emoji || ''} ${p.name}`;
-            if (order && order.productName) return order.productName;
             return 'Produto removido';
         }
 

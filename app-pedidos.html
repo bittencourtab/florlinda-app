@@ -956,7 +956,7 @@
                 </button>
                 <div class="form-group">
                     <label>Entregador</label>
-                    <select id="order-driver" required></select>
+                    <select id="order-driver"><option value="0">Sem entregador</option></select>
                 </div>
                 <div class="form-group">
                     <label>Observações</label>
@@ -2582,7 +2582,7 @@
 
             const clientId = parseInt(document.getElementById('edit-client').value);
             order.clientId = isNaN(clientId) ? order.clientId : clientId;
-            order.productId = parseInt(document.getElementById('edit-product').value);
+            order.productId = document.getElementById('edit-product').value;
             order.qty = parseInt(document.getElementById('edit-qty').value);
             order.value = parseFloat(document.getElementById('edit-value').value);
             order.deliveryValue = parseFloat(document.getElementById('edit-delivery-value').value) || 0;

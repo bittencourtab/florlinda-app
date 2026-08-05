@@ -1321,6 +1321,9 @@
                     if (p) {
                         o.productName = p.name;
                         changed = true;
+                    } else if (!o.productName) {
+                        o.productName = 'Produto antigo';
+                        changed = true;
                     }
                 }
             });

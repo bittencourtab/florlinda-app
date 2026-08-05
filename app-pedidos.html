@@ -2457,7 +2457,7 @@
             const delivery = data.deliveries.find(d => d.orderId === o.id);
 
             const clientSel = `<select id="edit-client">${data.clients.map(c => `<option value="${c.id}" ${c.id === o.clientId ? 'selected' : ''}>${c.name}</option>`).join('')}<option value="manual" ${!data.clients.find(c => c.id === o.clientId) ? 'selected' : ''}>Manual...</option></select>`;
-            const prodSel = `<select id="edit-product" onchange="document.getElementById('edit-value').value = this.options[this.selectedIndex].dataset.price || ''">${data.products.map(p => `<option value="${p.id}" data-price="${p.price}" ${p.id === o.productId ? 'selected' : ''}>${p.emoji || ''} ${p.name}</option>`).join('')}</select>`;
+            const prodSel = `<select id="edit-product" onchange="document.getElementById('edit-value').value = this.options[this.selectedIndex].dataset.price || ''">${data.products.map(p => `<option value="${p.id}" data-price="${p.price}" ${String(p.id) === String(o.productId) ? 'selected' : ''}>${p.emoji || ''} ${p.name}</option>`).join('')}</select>`;
             const driverSel = `<select id="edit-driver"><option value="0">Sem entregador</option>${data.drivers.map(d => `<option value="${d.id}" ${d.id === (delivery ? delivery.driverId : o.driverId) ? 'selected' : ''}>${d.name} (${d.vehicle})</option>`).join('')}</select>`;
 
             const payOptions = [
@@ -2584,6 +2584,8 @@
             const clientId = parseInt(document.getElementById('edit-client').value);
             order.clientId = isNaN(clientId) ? order.clientId : clientId;
             order.productId = document.getElementById('edit-product').value;
+            const editedProduct = data.products.find(p => String(p.id) === String(order.productId));
+            order.productName = editedProduct ? editedProduct.name : order.productName;
             order.qty = parseInt(document.getElementById('edit-qty').value);
             order.value = parseFloat(document.getElementById('edit-value').value);
             order.deliveryValue = parseFloat(document.getElementById('edit-delivery-value').value) || 0;

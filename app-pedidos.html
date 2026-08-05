@@ -1525,7 +1525,7 @@
             orderSel.innerHTML = pendingOrders.length
                 ? pendingOrders.map(o => {
                     const client = data.clients.find(c => c.id === o.clientId);
-                    return `<option value="${o.id}">${client ? client.name : 'Cliente'} - ${getProductName(o.productId)}</option>`;
+                    return `<option value="${o.id}">${client ? client.name : 'Cliente'} - ${getProductName(o.productId, o)}</option>`;
                 }).join('')
                 : '<option value="">Todos os pedidos já têm entrega</option>';
 
@@ -1876,9 +1876,11 @@
             return d.phone.replace(/\D/g, '');
         }
 
-        function getProductName(id) {
+        function getProductName(id, order) {
             const p = data.products.find(pr => pr.id === id);
-            return p ? `${p.emoji || ''} ${p.name}` : 'Produto removido';
+            if (p) return `${p.emoji || ''} ${p.name}`;
+            if (order && order.productName) return order.productName;
+            return 'Produto removido';
         }
 
         function formatCurrency(v) {
@@ -1977,7 +1979,7 @@
                     return `<div class="order-item" onclick="showOrderDetail(${o.id})">
                         <div class="order-info">
                             <h3>#${o.orderNumber || '...'} ${getClientName(o.clientId)}</h3>
-                            <p>${getProductName(o.productId)} • ${formatDate(o.date)} • ${formatCurrency(o.value)}</p>
+                            <p>${getProductName(o.productId, o)} • ${formatDate(o.date)} • ${formatCurrency(o.value)}</p>
                             <div style="margin-top:4px;">${statusBadges}</div>
                         </div>
                         <span class="badge badge-${o.status}">${statusLabel}</span>
@@ -1989,7 +1991,7 @@
         function refreshOrders() {
             const search = (document.getElementById('search-orders') && document.getElementById('search-orders').value || '').toLowerCase();
             let filtered = data.orders.filter(o => {
-                const matchSearch = getClientName(o.clientId).toLowerCase().includes(search) || getProductName(o.productId).toLowerCase().includes(search);
+                const matchSearch = getClientName(o.clientId).toLowerCase().includes(search) || getProductName(o.productId, o).toLowerCase().includes(search);
                 const matchStatus = currentFilter === 'all' || o.status === currentFilter;
                 return matchSearch && matchStatus;
             }).sort((a, b) => b.date.localeCompare(a.date));
@@ -2003,7 +2005,7 @@
                 <div class="order-item" onclick="showOrderDetail(${o.id})">
                     <div class="order-info">
                         <h3>#${o.orderNumber || '...'} ${getClientName(o.clientId)}</h3>
-                        <p>${getProductName(o.productId)} • ${formatDate(o.date)}</p>
+                        <p>${getProductName(o.productId, o)} • ${formatDate(o.date)}</p>
                         <span class="badge badge-${o.status}">${o.status === 'pending' ? 'Pendente' : o.status === 'done' ? 'Pronto' : o.status === 'cancelled' ? 'Cancelado' : 'Entregue'}</span>
                     </div>
                     <div style="text-align:right;">
@@ -2028,7 +2030,8 @@
                 return;
             }
             container.innerHTML = filtered.map(p => {
-                const stockClass = p.stock > 5 ? 'stock-ok' : p.stock > 0 ? 'stock-low' : 'stock-out';
+                const stock = p.stock || 0;
+                const stockClass = stock > 5 ? 'stock-ok' : stock > 0 ? 'stock-low' : 'stock-out';
                 const imgContent = p.image ? `<img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width:100%; height:100%; object-fit:cover;"><span style="display:none; font-size:2.5em;">${p.emoji || '📦'}</span>` : `<span style="font-size:2.5em;">${p.emoji || '📦'}</span>`;
                 return `
                     <div class="product-card" onclick="editProductStock(${p.id})">
@@ -2036,7 +2039,7 @@
                         <div class="product-info">
                             <h3>${p.name}</h3>
                             <p>${formatCurrency(p.price)}</p>
-                            <span class="stock-badge ${stockClass}">Estoque: ${p.stock}</span>
+                            <span class="stock-badge ${stockClass}">Estoque: ${stock}</span>
                         </div>
                         <button onclick="event.stopPropagation(); deleteProduct(${p.id})" style="position:absolute; top:8px; right:8px; background:#ff6b6b; color:white; border:none; border-radius:50%; width:32px; height:32px; cursor:pointer; font-size:1.1em; display:flex; align-items:center; justify-content:center; z-index:10; box-shadow:0 2px 6px rgba(0,0,0,0.3);">✕</button>
                     </div>
@@ -2637,7 +2640,7 @@
 
                     <div class="section">
                         <h3>Pedido</h3>
-                        <p><strong>${getProductName(o.productId)}</strong></p>
+                        <p><strong>${getProductName(o.productId, o)}</strong></p>
                         ${product && product.description ? `<p style="font-size:0.8em; color:#666;">${product.description}</p>` : ''}
                         <div class="row" style="margin-top:8px;">
                             <span>Quantidade: <strong>${o.qty}</strong></span>
@@ -2947,7 +2950,7 @@
 
             const client = data.clients.find(c => c.id === o.clientId);
             const receiverName = o.receiverName || (client ? client.name : 'Cliente');
-            const msg = `🚚 *Nova Entrega Florlinda*\n\n👤 *Recebedor:* ${receiverName}\n📱 *Telefone:* ${o.receiverPhone || (client && client.phone) || 'Não informado'}\n\n📦 *Produto:* ${getProductName(o.productId)}\n\n📍 *Endereço:* ${o.address || 'Não informado'}\n📅 *Data:* ${formatDate(o.date)}\n⏰ *Horário:* ${o.time}${o.notes ? `\n\n📝 *Obs:* ${o.notes}` : ''}\n\n🔗 *Google Maps:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address || '')}`;
+            const msg = `🚚 *Nova Entrega Florlinda*\n\n👤 *Recebedor:* ${receiverName}\n📱 *Telefone:* ${o.receiverPhone || (client && client.phone) || 'Não informado'}\n\n📦 *Produto:* ${getProductName(o.productId, o)}\n\n📍 *Endereço:* ${o.address || 'Não informado'}\n📅 *Data:* ${formatDate(o.date)}\n⏰ *Horário:* ${o.time}${o.notes ? `\n\n📝 *Obs:* ${o.notes}` : ''}\n\n🔗 *Google Maps:* https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.address || '')}`;
 
             const confirmar = confirm(`Enviar para ${driver.name}?\n\n📱 ${driver.phone}\n\n👤 Recebedor: ${receiverName}\n📍 ${o.address || 'Sem endereço'}`);
 

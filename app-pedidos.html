@@ -2752,13 +2752,14 @@
                         
                         .card-10x10 {
                             width: 100mm;
-                            height: 100mm;
+                            min-height: 80mm;
                             page-break-inside: avoid;
                         }
                         
                         .card-10x10 .card-bg {
                             width: 100%;
                             height: 100%;
+                            min-height: inherit;
                             background: repeating-linear-gradient(
                                 0deg,
                                 #d4eaf7 0px,
@@ -2771,25 +2772,23 @@
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            padding: 6mm;
-                            overflow: hidden;
+                            padding: 5mm;
                         }
                         
                         .card-10x10 .card-inner {
                             background: rgba(255,255,255,0.9);
                             width: 100%;
-                            height: 100%;
+                            min-height: inherit;
                             display: flex;
                             flex-direction: column;
                             justify-content: center;
                             align-items: center;
                             text-align: center;
-                            padding: 5mm;
-                            overflow: hidden;
+                            padding: 4mm;
                         }
                         
                         .card-10x10 .card-icon {
-                            font-size: 24px;
+                            font-size: 22px;
                             margin-bottom: 1mm;
                             flex-shrink: 0;
                         }
@@ -2806,15 +2805,13 @@
                         
                         .card-10x10 .card-message {
                             font-family: 'Caveat', cursive;
-                            font-size: 14px;
+                            font-size: 16px;
                             color: #4a6a8a;
                             line-height: 1.3;
                             white-space: pre-wrap;
                             word-wrap: break-word;
                             overflow-wrap: break-word;
                             max-width: 88mm;
-                            flex: 1;
-                            min-height: 0;
                         }
                         
                         .polaroid-7x9 {
@@ -2854,13 +2851,30 @@
                     </div>
                     ${'<'}script>
                         window.onload = function() {
-                            document.querySelectorAll('.card-inner').forEach(container => {
-                                const msg = container.querySelector('.card-message');
+                            document.querySelectorAll('.card-10x10').forEach(card => {
+                                const inner = card.querySelector('.card-inner');
+                                const msg = inner.querySelector('.card-message');
                                 if (!msg) return;
-                                let fontSize = 22;
+
+                                const hasPolaroid = card.nextElementSibling && card.nextElementSibling.classList.contains('polaroid-7x9');
+                                const maxCardH = hasPolaroid ? 260 : 260;
+
+                                let fontSize = 18;
                                 msg.style.fontSize = fontSize + 'px';
-                                const available = container.clientHeight;
-                                while (msg.scrollHeight > msg.clientHeight && fontSize > 6) {
+
+                                card.style.height = '80mm';
+                                card.style.minHeight = '80mm';
+
+                                if (msg.scrollHeight <= msg.clientHeight) return;
+
+                                let cardH = 80;
+                                while (msg.scrollHeight > msg.clientHeight && cardH < maxCardH) {
+                                    cardH += 10;
+                                    card.style.height = cardH + 'mm';
+                                    card.style.minHeight = cardH + 'mm';
+                                }
+
+                                while (msg.scrollHeight > msg.clientHeight && fontSize > 8) {
                                     fontSize -= 0.5;
                                     msg.style.fontSize = fontSize + 'px';
                                 }

@@ -14,6 +14,7 @@
     <meta name="theme-color" content="#E8A5A0">
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -619,20 +620,23 @@
     </div>
 
     <script>
+        var auth;
         function doLogin() {
             var user = document.getElementById('login-user').value.trim();
             var pass = document.getElementById('login-pass').value;
-            if (user === 'florlinda' && pass === '1234') {
+            var email = user + '@florlinda.app';
+            document.getElementById('login-error').style.display = 'none';
+            auth.signInWithEmailAndPassword(email, pass).then(function() {
                 if (document.getElementById('login-remember').checked) {
                     localStorage.setItem('florlinda-auth', 'ok');
                 }
                 sessionStorage.setItem('florlinda-auth', 'ok');
                 document.getElementById('login-screen').style.display = 'none';
-            } else {
+            }).catch(function() {
                 document.getElementById('login-error').style.display = 'block';
                 document.getElementById('login-pass').value = '';
                 document.getElementById('login-pass').focus();
-            }
+            });
         }
         (function() {
             if (localStorage.getItem('florlinda-auth') === 'ok' || sessionStorage.getItem('florlinda-auth') === 'ok') {
@@ -660,6 +664,7 @@
 
     <script>
         function doLogout() {
+            auth.signOut();
             localStorage.removeItem('florlinda-auth');
             sessionStorage.removeItem('florlinda-auth');
             location.reload();
@@ -1296,6 +1301,7 @@
         try {
             firebase.initializeApp(firebaseConfig);
             db = firebase.database();
+            auth = firebase.auth();
         } catch(e) {
             console.log('Firebase SDK não disponível, usando REST API');
         }
@@ -1309,12 +1315,21 @@
 
         // CARREGAR DADOS via REST API
         const DB_URL = 'https://florlinda-184ec-default-rtdb.firebaseio.com';
-        
+
+        async function getAuthToken() {
+            if (auth && auth.currentUser) {
+                return await auth.currentUser.getIdToken();
+            }
+            return null;
+        }
+
         async function loadData() {
             try {
+                const token = await getAuthToken();
+                const authParam = token ? '?auth=' + token : '';
                 const paths = ['orders','products','clients','finance','drivers','deliveries'];
                 const results = await Promise.all(paths.map(p => 
-                    fetch(`${DB_URL}/${p}.json`).then(r => r.json())
+                    fetch(`${DB_URL}/${p}.json${authParam}`).then(r => r.json())
                 ));
                 const [o, p, c, f, d, de] = results;
                 data.orders = o ? Object.values(o) : [];
@@ -1401,7 +1416,9 @@
 
         // SALVAR via REST API do Firebase
 
-        function save() {
+        async function save() {
+            const token = await getAuthToken();
+            const authParam = token ? '?auth=' + token : '';
             const paths = {
                 orders: data.orders,
                 products: data.products,
@@ -1410,7 +1427,7 @@
                 deliveries: data.deliveries
             };
             Object.entries(paths).forEach(([key, val]) => {
-                fetch(`${DB_URL}/${key}.json`, {
+                fetch(`${DB_URL}/${key}.json${authParam}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(val)

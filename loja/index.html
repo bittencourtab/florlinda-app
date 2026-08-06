@@ -1398,6 +1398,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyCx5-kXjh2JKR3ws79sJ-2Fm5NMXvbXq8s",
@@ -1410,6 +1411,8 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
+        auth.signInAnonymously().catch(e => console.error('Auth anônima falhou:', e));
 
         let allProducts = [];
         let cart = JSON.parse(localStorage.getItem('florlinda-cart') || '[]');

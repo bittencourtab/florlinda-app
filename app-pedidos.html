@@ -2966,7 +2966,7 @@
 
             let polaroidsHTML = '';
             if (hasPhotos) {
-                polaroidsHTML = o.photos.map(p => `<div class="polaroid-7x9"><div class="polaroid-img" style="background-image:url('${p}');background-size:contain;background-position:center center;background-repeat:no-repeat;background-color:#f5f5f5;"></div></div>`).join('');
+                polaroidsHTML = '<div class="photos-row">' + o.photos.map(p => `<div class="polaroid-7x9"><div class="polaroid-img" style="background-image:url('${p}');background-size:contain;background-position:center center;background-repeat:no-repeat;background-color:#f5f5f5;"></div></div>`).join('') + '</div>';
             }
 
             const printWindow = window.open('', '_blank');
@@ -2980,18 +2980,19 @@
                         @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&display=swap');
                         * { margin: 0; padding: 0; box-sizing: border-box; }
                         @page { size: A4 portrait; margin: 10mm; }
-                        body { font-family: 'Caveat', cursive; background: white; }
+                        body { font-family: 'Caveat', cursive; background: white; width: 190mm; margin: 0 auto; }
 
-                        .card-page {
-                            width: 190mm; height: 277mm;
-                            display: flex; align-items: center; justify-content: center;
-                            page-break-after: always;
+                        .print-area {
+                            width: 190mm;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
                         }
 
                         .card-10x10 {
                             width: 100mm; height: 100mm;
                             position: relative; overflow: hidden;
-                            flex-shrink: 0;
+                            flex-shrink: 0; margin: 20mm auto 8mm auto;
                         }
 
                         .card-label {
@@ -3029,15 +3030,12 @@
                             overflow-wrap: break-word; max-width: 100%; flex: 1; min-height: 0;
                         }
 
-                        .photos-page {
-                            width: 190mm; height: 277mm;
-                            display: flex; flex-wrap: wrap;
-                            justify-content: center; align-content: center;
-                            gap: 3mm;
+                        .photos-row {
+                            display: flex; justify-content: center; gap: 4mm; flex-wrap: wrap;
                         }
 
                         .polaroid-7x9 {
-                            width: 80mm; height: 100mm;
+                            width: 70mm; height: 90mm;
                             background: white; border: 1px solid #ddd;
                             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
                             display: flex; flex-direction: column;
@@ -3058,13 +3056,13 @@
                     </style>
                 </head>
                 <body>
-                    <div class="card-page">
-                        <div class="card-wrapper" style="width:100mm;height:100mm;">
+                    <div class="print-area">
+                        <div style="position:relative;width:100mm;height:100mm;">
                             <div class="card-label">#${o.orderNumber || '...'} ${receiverName}</div>
                             ${cardHTML}
                         </div>
+                        ${polaroidsHTML}
                     </div>
-                    ${hasPhotos ? `<div class="photos-page">${polaroidsHTML}</div>` : ''}
                     <script>
                         window.onload = function() {
                             document.querySelectorAll('.card-inner').forEach(container => {

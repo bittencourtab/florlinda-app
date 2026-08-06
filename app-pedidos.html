@@ -1337,6 +1337,7 @@
                 data.drivers = d ? Object.values(d) : [];
                 data.deliveries = de ? Object.values(de) : [];
                 lastOrderCount = data.orders.length;
+                dataLoaded = true;
                 fixOldOrders();
                 refreshAll();
             } catch(e) {
@@ -1414,7 +1415,10 @@
 
         // SALVAR via REST API do Firebase
 
+        let dataLoaded = false;
+
         async function save() {
+            if (!dataLoaded) return;
             const token = await getAuthToken();
             const authParam = token ? '?auth=' + token : '';
             const paths = {
@@ -1425,8 +1429,9 @@
                 deliveries: data.deliveries
             };
             Object.entries(paths).forEach(([key, val]) => {
-                fetch(`${DB_URL}/${key}.json${authParam}`, {
-                    method: 'PUT',
+                if (!Array.isArray(val) || val.length > 0) {
+                    fetch(`${DB_URL}/${key}.json${authParam}`, {
+                        method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(val)
                 }).then(r => {

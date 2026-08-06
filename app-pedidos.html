@@ -624,19 +624,18 @@
         function doLogin() {
             var user = document.getElementById('login-user').value.trim();
             var pass = document.getElementById('login-pass').value;
-            var email = user + '@florlinda.app';
-            document.getElementById('login-error').style.display = 'none';
-            auth.signInWithEmailAndPassword(email, pass).then(function() {
+            if (user === 'florlinda' && pass === '1234') {
                 if (document.getElementById('login-remember').checked) {
                     localStorage.setItem('florlinda-auth', 'ok');
                 }
                 sessionStorage.setItem('florlinda-auth', 'ok');
                 document.getElementById('login-screen').style.display = 'none';
-            }).catch(function() {
+                if (auth) auth.signInWithEmailAndPassword('florlinda@email.com', '123456').catch(() => {});
+            } else {
                 document.getElementById('login-error').style.display = 'block';
                 document.getElementById('login-pass').value = '';
                 document.getElementById('login-pass').focus();
-            });
+            }
         }
         (function() {
             if (localStorage.getItem('florlinda-auth') === 'ok' || sessionStorage.getItem('florlinda-auth') === 'ok') {

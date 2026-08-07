@@ -1326,9 +1326,11 @@
                 const token = await getAuthToken();
                 const authParam = token ? '?auth=' + token : '';
                 const paths = ['orders','products','clients','finance','drivers','deliveries'];
-                const results = await Promise.all(paths.map(p => 
-                    fetch(`${DB_URL}/${p}.json${authParam}`).then(r => r.json())
-                ));
+                const results = await Promise.all(paths.map(async p => {
+                    const response = await fetch(`${DB_URL}/${p}.json${authParam}`);
+                    if (!response.ok) throw new Error(`Firebase ${p}: HTTP ${response.status}`);
+                    return response.json();
+                }));
                 const [o, p, c, f, d, de] = results;
                 data.orders = o ? Object.values(o) : [];
                 data.products = p ? Object.values(p) : [];

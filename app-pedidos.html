@@ -1321,6 +1321,55 @@
             return null;
         }
 
+        let backupPromise = null;
+
+        async function backupData(snapshot) {
+            const token = await getAuthToken();
+            const authParam = token ? '?auth=' + token : '';
+            const backup = { savedAt: new Date().toISOString(), data: snapshot };
+            const response = await fetch(`${DB_URL}/backups/latest.json${authParam}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(backup)
+            });
+            if (!response.ok) throw new Error(`Backup Firebase: HTTP ${response.status}`);
+            return backup.savedAt;
+        }
+
+        async function backupNow() {
+            if (!dataLoaded) {
+                alert('Aguarde os dados carregarem antes de fazer o backup.');
+                return;
+            }
+            try {
+                const savedAt = await backupData(JSON.parse(JSON.stringify(data)));
+                alert('Backup realizado em ' + new Date(savedAt).toLocaleString('pt-BR'));
+            } catch (error) {
+                console.error('Erro no backup:', error);
+                alert('Não foi possível fazer o backup.');
+            }
+        }
+
+        async function restoreLastBackup() {
+            if (!confirm('Restaurar o último backup? O estado atual será substituído.')) return;
+            try {
+                const token = await getAuthToken();
+                const authParam = token ? '?auth=' + token : '';
+                const response = await fetch(`${DB_URL}/backups/latest.json${authParam}`);
+                if (!response.ok) throw new Error(`Backup Firebase: HTTP ${response.status}`);
+                const backup = await response.json();
+                if (!backup || !backup.data) throw new Error('Backup vazio');
+                data = backup.data;
+                dataLoaded = true;
+                await save();
+                refreshAll();
+                alert('Backup restaurado. Data: ' + new Date(backup.savedAt).toLocaleString('pt-BR'));
+            } catch (error) {
+                console.error('Erro ao restaurar backup:', error);
+                alert('Não foi possível restaurar o backup.');
+            }
+        }
+
         async function loadData() {
             try {
                 const token = await getAuthToken();
@@ -1421,6 +1470,16 @@
 
         async function save() {
             if (!dataLoaded) return;
+            const snapshot = JSON.parse(JSON.stringify(data));
+            try {
+                backupPromise = backupPromise || backupData(snapshot);
+                await backupPromise;
+            } catch (error) {
+                backupPromise = null;
+                console.error('Gravação cancelada: backup falhou', error);
+                return;
+            }
+            backupPromise = null;
             const token = await getAuthToken();
             const authParam = token ? '?auth=' + token : '';
             const paths = {
@@ -1428,7 +1487,8 @@
                 products: data.products,
                 clients: data.clients,
                 finance: data.finance,
-                deliveries: data.deliveries
+                deliveries: data.deliveries,
+                drivers: data.drivers
             };
             Object.entries(paths).forEach(([key, val]) => {
                 if (!Array.isArray(val) || val.length > 0) {

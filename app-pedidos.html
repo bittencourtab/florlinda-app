@@ -1432,11 +1432,12 @@
                 if (!Array.isArray(val) || val.length > 0) {
                     fetch(`${DB_URL}/${key}.json${authParam}`, {
                         method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(val)
-                }).then(r => {
-                    if (!r.ok) return r.text().then(t => { throw new Error(t); });
-                }).catch(e => console.error('Erro ' + key, e.message));
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(val)
+                    }).then(r => {
+                        if (!r.ok) return r.text().then(t => { throw new Error(t); });
+                    }).catch(e => console.error('Erro ' + key, e.message));
+                }
             });
         }
 

@@ -1491,15 +1491,13 @@
                 drivers: data.drivers
             };
             Object.entries(paths).forEach(([key, val]) => {
-                if (!Array.isArray(val) || val.length > 0) {
-                    fetch(`${DB_URL}/${key}.json${authParam}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(val)
-                    }).then(r => {
-                        if (!r.ok) return r.text().then(t => { throw new Error(t); });
-                    }).catch(e => console.error('Erro ' + key, e.message));
-                }
+                fetch(`${DB_URL}/${key}.json${authParam}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(val)
+                }).then(r => {
+                    if (!r.ok) return r.text().then(t => { throw new Error(t); });
+                }).catch(e => console.error('Erro ' + key, e.message));
             });
         }
 
@@ -3169,9 +3167,14 @@
 
         function deleteOrder(id) {
             if (confirm('Excluir este pedido e sua entrada financeira?')) {
+                const order = data.orders.find(o => o.id === id);
+                const clientId = order && order.clientId;
                 data.orders = data.orders.filter(o => o.id !== id);
                 data.deliveries = data.deliveries.filter(d => d.orderId !== id);
                 data.finance = data.finance.filter(f => !(f.category === 'venda' && f.description && f.description.includes('Pedido') && f.orderId === id));
+                if (clientId != null && !data.orders.some(o => o.clientId === clientId)) {
+                    data.clients = data.clients.filter(c => c.id !== clientId);
+                }
                 save();
                 closeModal('order-detail');
                 refreshAll();

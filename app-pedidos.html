@@ -3069,24 +3069,26 @@
                         </div>
                         ${polaroidsHTML}
                     </div>
-                    <script>
-                        window.onload = function() {
-                            document.querySelectorAll('.card-inner').forEach(container => {
-                                const msg = container.querySelector('.card-message');
-                                if (!msg) return;
-                                let fontSize = 18;
-                                msg.style.fontSize = fontSize + 'px';
-                                while (msg.scrollHeight > msg.clientHeight && fontSize > 8) {
-                                    fontSize -= 0.5;
-                                    msg.style.fontSize = fontSize + 'px';
-                                }
-                            });
-                            setTimeout(function() { window.print(); }, 500);
-                        };
-                    <\/script>
                 </body>
                 </html>
             `);
+            const scriptEl = printWindow.document.createElement('script');
+            scriptEl.textContent = `
+                window.onload = function() {
+                    document.querySelectorAll('.card-inner').forEach(container => {
+                        const msg = container.querySelector('.card-message');
+                        if (!msg) return;
+                        let fontSize = 18;
+                        msg.style.fontSize = fontSize + 'px';
+                        while (msg.scrollHeight > msg.clientHeight && fontSize > 8) {
+                            fontSize -= 0.5;
+                            msg.style.fontSize = fontSize + 'px';
+                        }
+                    });
+                    setTimeout(function() { window.print(); }, 500);
+                };
+            `;
+            printWindow.document.body.appendChild(scriptEl);
             printWindow.document.close();
         }
 
